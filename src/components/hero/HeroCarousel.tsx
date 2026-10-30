@@ -416,7 +416,7 @@ export default function HeroCarousel() {
   const currentItem = slides[activeIndex];
   return (
     <div
-      className="relative w-full overflow-hidden select-none font-inter"
+      className="relative w-full overflow-hidden select-none font-sans"
       style={{
         backgroundColor: currentItem.bg,
         transition: 'background-color 650ms cubic-bezier(0.4, 0, 0.2, 1)',
@@ -684,7 +684,7 @@ export default function HeroCarousel() {
           </div>
 
           <h1
-            className="mb-2 sm:mb-3 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold uppercase text-white tracking-tight leading-none line-clamp-2 overflow-hidden"
+            className="mb-2 sm:mb-3 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold uppercase font-serif text-white tracking-tight leading-none line-clamp-2 overflow-hidden"
             style={{
               opacity: 0.95,
               letterSpacing: '0',
