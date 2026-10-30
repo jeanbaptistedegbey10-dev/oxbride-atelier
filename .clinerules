@@ -1,0 +1,24 @@
+# OXBride Atelier — Règles de développement (Cline)
+
+## Cadre de développement
+- Next.js 14+ (App Router), TypeScript, Tailwind CSS, Framer Motion, Lucide React.
+- Applications Web uniquement.
+
+## Règles d'architecture
+- Composants modularisés dans `src/components/`.
+- Typages stricts dans `src/types/`.
+- Services API GraphQL (Shopify Storefront API) dans `src/lib/shopify/`.
+
+## Interdiction stricte
+- N'utilisez JAMAIS Bootstrap, Material UI ou aucun autre framework CSS externe.
+- Seul Tailwind CSS est autorisé pour le stylage.
+
+## Typographie & UI
+- Titres : typographie éditoriale d'exception, police serif (Times New Roman, fallback serif).
+- Texte courant : Inter / Sans-serif.
+
+## Conventions générales
+- Functional Components uniquement.
+- Hooks React optimisés.
+- Animations fluides avec Framer Motion.
+- Typage TypeScript strict pour la Storefront API Shopify et les Metaobjects `atelier_experience`.
