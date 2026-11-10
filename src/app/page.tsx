@@ -6,7 +6,7 @@ import DetailLookbookGallery from "@/components/sections/DetailLookbookGallery";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background text-foreground flex flex-col">
+    <main className="flex flex-col bg-background text-foreground">
       {/* 1. Hero / Carrousel principal */}
       <HeroCarousel />
 
