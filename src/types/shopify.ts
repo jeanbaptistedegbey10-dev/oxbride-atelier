@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OXBride Atelier — Typages Shopify Storefront API
  * Méta-objet : editorial_manifeste
  */
@@ -270,57 +270,10 @@ export interface LookbookProductData {
   price: string;
   imageUrl: string;
   imageAlt: string;
+  images: Array<{ url: string; altText: string }>;
   link: string;
 }
 
-/** Fallback statique élégant pour le lookbook si le shop est indisponible. */
-export const LOOKBOOK_FALLBACK: LookbookProductData[] = [
-  {
-    id: 'lookbook-soie-duchesse',
-    handle: 'lookbook-soie-duchesse',
-    title: 'Soie Duchesse',
-    price: 'Sur devis',
-    imageUrl: 'https://images.unsplash.com/photo-1580388739837-d22902a6a19e?w=900&q=80&fm=jpg',
-    imageAlt: 'Soie Duchesse — haute couture OXBride Atelier',
-    link: '/collections/lookbook',
-  },
-  {
-    id: 'lookbook-dentelle-chantilly',
-    handle: 'lookbook-dentelle-chantilly',
-    title: 'Dentelle de Chantilly',
-    price: 'Sur devis',
-    imageUrl: 'https://images.unsplash.com/photo-1515833863044-dbbf2a1fa380?w=900&q=80&fm=jpg',
-    imageAlt: 'Dentelle de Chantilly — haute couture OXBride',
-    link: '/collections/lookbook',
-  },
-  {
-    id: 'lookbook-broderie-main',
-    handle: 'lookbook-broderie-main',
-    title: 'Broderie Main',
-    price: 'Sur devis',
-    imageUrl: 'https://images.unsplash.com/photo-1522687103360-0221c761e2a6?w=600&q=80&fm=jpg',
-    imageAlt: 'Broderie main et perles — OXBride Atelier',
-    link: '/collections/lookbook',
-  },
-  {
-    id: 'lookbook-satin-organdi',
-    handle: 'lookbook-satin-organdi',
-    title: 'Satin & Organdi',
-    price: 'Sur devis',
-    imageUrl: 'https://images.unsplash.com/photo-1596870304204-ae3e6bc4e461?w=600&q=80&fm=jpg',
-    imageAlt: 'Satin et organdi — atelier OXBride',
-    link: '/collections/lookbook',
-  },
-  {
-    id: 'lookbook-finitions',
-    handle: 'lookbook-finitions',
-    title: 'Les Finitions',
-    price: 'Sur devis',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&q=80&fm=jpg',
-    imageAlt: 'Finitions de couture haute — OXBride Atelier',
-    link: '/collections/lookbook',
-  },
-];
 
 /* ============================================================================
    Collections — Univers de la Maison (Storefront API)

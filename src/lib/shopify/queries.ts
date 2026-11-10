@@ -23,7 +23,6 @@ import type {
   ShopifyMetaobject,
 } from '@/types/shopify';
 import {
-  LOOKBOOK_FALLBACK,
   PRIVATE_SALON_FALLBACK,
   SALON_FIELD_ALIASES,
   normalizeShopifyKey,
@@ -326,6 +325,14 @@ export const PRODUCTS_QUERY = `
           url
           altText
         }
+        images(first: 5) {
+          edges {
+            node {
+              url
+              altText
+            }
+          }
+        }
       }
     }
   }
@@ -373,6 +380,13 @@ export async function getProducts({
           : 'Sur devis',
       imageUrl: node.featuredImage?.url ?? '',
       imageAlt: node.featuredImage?.altText ?? node.title,
+      images:
+        node.images?.edges
+          ?.map((edge) => ({
+            url: edge.node.url,
+            altText: edge.node.altText ?? node.title,
+          }))
+          .filter(Boolean) ?? [],
       link: `/products/${node.handle}`,
     }));
   } catch (error) {
@@ -387,12 +401,12 @@ export async function getProducts({
 }
 
 export const LOOKBOOK_COLLECTION_PRODUCTS_QUERY = `
-  query GetLookbookCollectionProducts($handle: String!) {
+  query GetLookbookCollectionProducts($handle: String!, $first: Int!) {
     collection(handle: $handle) {
       id
       handle
       title
-      products(first: 12, sortKey: TITLE, reverse: false) {
+      products(first: $first, sortKey: TITLE, reverse: false) {
         nodes {
           id
           handle
@@ -406,6 +420,14 @@ export const LOOKBOOK_COLLECTION_PRODUCTS_QUERY = `
           featuredImage {
             url
             altText
+          }
+          images(first: 5) {
+            edges {
+              node {
+                url
+                altText
+              }
+            }
           }
         }
       }
@@ -433,6 +455,14 @@ export const LOOKBOOK_PRODUCTS_BY_TAG_QUERY = `
         featuredImage {
           url
           altText
+        }
+        images(first: 5) {
+          edges {
+            node {
+              url
+              altText
+            }
+          }
         }
       }
     }
@@ -464,6 +494,14 @@ export interface LookbookProductNode {
   title: string;
   priceRange: LookbookPriceRangeNode | null;
   featuredImage: { url: string; altText: string | null } | null;
+  images: {
+    edges: Array<{
+      node: {
+        url: string;
+        altText: string | null;
+      };
+    }>;
+  } | null;
 }
 
 export interface LookbookCollectionResponse {
@@ -482,6 +520,8 @@ export interface GetLookbookProductsOptions {
   handle?: string;
   /** Handles de collection candidats, essayÃ©s par ordre de prioritÃ©. */
   handles?: string[];
+  /** Nombre maximal de produits à rÃ©cupÃ©rer. */
+  first?: number;
   cache?: RequestCache;
 }
 
@@ -504,18 +544,19 @@ const DEFAULT_LOOKBOOK_HANDLES: string[] = [
  *
  * Si la collection est introuvable ou ne renvoie aucun produit, bascule
  * sur les 12 premiers produits actifs de la boutique (`getProducts`) afin
- * d'alimenter la grille avec de vrais produits Shopify. Le fallback statique
- * LOOKBOOK_FALLBACK n'est utilisé qu'en dernier recours.
+ * d'alimenter la grille avec de vrais produits Shopify. Aucune donnée
+ * statique ni fictive n'est retournée : le tableau est vide en cas d'échec.
  */
 export async function getLookbookProducts({
   handle = 'lookbook',
+  first = 12,
   cache = 'no-store',
 }: GetLookbookProductsOptions = {}): Promise<LookbookProductData[]> {
   // 1. Requête directe : collection lookbook par handle
   try {
     const data = await shopifyFetch<LookbookCollectionResponse>(
       LOOKBOOK_COLLECTION_PRODUCTS_QUERY,
-      { handle },
+      { handle, first },
       { cache }
     );
     const products = (data.collection?.products?.nodes ?? []).filter(Boolean);
@@ -530,7 +571,14 @@ export async function getLookbookProducts({
             : 'Sur devis',
         imageUrl: node.featuredImage?.url ?? '',
         imageAlt: node.featuredImage?.altText ?? node.title,
-        link: `/collections/${handle}/products/${node.handle}`,
+        images:
+          node.images?.edges
+            ?.map((edge) => ({
+              url: edge.node.url,
+              altText: edge.node.altText ?? node.title,
+            }))
+            .filter(Boolean) ?? [],
+        link: `/products/${node.handle}`,
       }));
     }
   } catch {
@@ -555,6 +603,13 @@ export async function getLookbookProducts({
             : 'Sur devis',
         imageUrl: node.featuredImage?.url ?? '',
         imageAlt: node.featuredImage?.altText ?? node.title,
+        images:
+          node.images?.edges
+            ?.map((edge) => ({
+              url: edge.node.url,
+              altText: edge.node.altText ?? node.title,
+            }))
+            .filter(Boolean) ?? [],
         link: `/products/${node.handle}`,
       }));
     }
@@ -562,12 +617,17 @@ export async function getLookbookProducts({
     // Échec silencieux : bascule immédiate sur les produits généraux.
   }
   // 3. Fallback intelligent : 12 premiers produits actifs de la boutique.
-  const boutiqueProducts = await getProducts({ first: 12, cache });
+  let boutiqueProducts: LookbookProductData[] = [];
+  try {
+    boutiqueProducts = await getProducts({ first: 12, cache });
+  } catch {
+    boutiqueProducts = [];
+  }
   if (boutiqueProducts.length > 0) {
     return boutiqueProducts;
   }
   // 4. Dernier recours : fallback statique figé.
-  return LOOKBOOK_FALLBACK;
+  return [];
 }
 
 /* ============================================================================
