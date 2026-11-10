@@ -4,6 +4,28 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'my-wedding-qqis3wpp.myshopify.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.css": {
