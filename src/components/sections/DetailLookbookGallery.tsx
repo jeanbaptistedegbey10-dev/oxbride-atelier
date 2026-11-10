@@ -48,14 +48,14 @@ function ProductCard({ piece }: { piece: LookbookProductData }) {
 
   return (
     <Link href={piece.link} className="block">
-      <div className="relative group rounded-2xl overflow-hidden">
-        <div className="relative w-full aspect-[3/4]">
+      <div className="relative group rounded-2xl overflow-hidden bg-white border border-stone-200/80 shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_15px_40px_rgba(0,0,0,0.08)] transition-all duration-500">
+        <div className="relative w-full aspect-[3/4] overflow-hidden rounded-t-2xl">
           <Image
             fill
             unoptimized
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
             quality={95}
-            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            className="object-cover object-center w-full h-full transition-transform duration-700 group-hover:scale-105"
             alt={currentImage.altText}
             src={currentImage.url}
           />
@@ -69,13 +69,11 @@ function ProductCard({ piece }: { piece: LookbookProductData }) {
                   goToPrev();
                 }}
                 aria-label="Image précédente"
-                className="absolute left-4 top-1/2 -translate-y-1/2"
+                className="absolute left-4 top-1/2 -translate-y-1/2 m-0 p-0 w-12 h-12 flex items-center justify-center leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >
-                <span className="inline-block opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
-                  <span className="absolute inset-0 bg-stone-900/20 backdrop-blur-sm rounded-full transition-all duration-300 group-hover:bg-stone-900/40" />
-                  <span className="relative z-10 text-stone-200 text-lg font-serif font-bold leading-none">
-                    &lt;
-                  </span>
+                <span className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm rounded-full transition-all duration-300 hover:bg-stone-900/70" />
+                <span className="relative z-10 text-white text-2xl font-serif font-bold leading-none">
+                  &lt;
                 </span>
               </button>
               <button
@@ -85,29 +83,27 @@ function ProductCard({ piece }: { piece: LookbookProductData }) {
                   goToNext();
                 }}
                 aria-label="Image suivante"
-                className="absolute right-4 top-1/2 -translate-y-1/2"
+                className="absolute right-4 top-1/2 -translate-y-1/2 m-0 p-0 w-12 h-12 flex items-center justify-center leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >
-                <span className="inline-block opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out">
-                  <span className="absolute inset-0 bg-stone-900/20 backdrop-blur-sm rounded-full transition-all duration-300 group-hover:bg-stone-900/40" />
-                  <span className="relative z-10 text-stone-200 text-lg font-serif font-bold leading-none">
-                    &gt;
-                  </span>
+                <span className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm rounded-full transition-all duration-300 hover:bg-stone-900/70" />
+                <span className="relative z-10 text-white text-2xl font-serif font-bold leading-none">
+                  &gt;
                 </span>
               </button>
             </>
           )}
           {hasMultipleImages && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 items-center px-2 py-1.5 bg-stone-900/40 backdrop-blur-sm rounded-full shadow-lg">
               {Array.from({ length: imageCount }).map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setCurrentImageIndex(idx)}
                   aria-label={`Image ${idx + 1}`}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     currentImageIndex === idx
-                      ? 'bg-stone-900'
-                      : 'bg-stone-500/30 hover:bg-stone-500/60'
+                      ? 'bg-white scale-125'
+                      : 'bg-white/60 hover:bg-white/80'
                   }`}
                 />
               ))}
