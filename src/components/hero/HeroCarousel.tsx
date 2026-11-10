@@ -444,12 +444,11 @@ export default function HeroCarousel() {
         />
 
         <div
-          className={`${anton.className} absolute inset-x-0 flex items-center justify-center pointer-events-none select-none`}
+          className={`${anton.className} absolute inset-x-0 flex items-center justify-center pointer-events-none select-none text-[clamp(60px,20vw,280px)] lg:text-[12vw] xl:text-[13vw]`}
           style={{
             zIndex: 2,
             top: isMobile ? '14%' : '16%',
             fontFamily: anton.style.fontFamily,
-            fontSize: 'clamp(60px, 20vw, 280px)',
             fontWeight: 900,
             color: '#FFFFFF',
             opacity: 0.95,
@@ -671,31 +670,30 @@ export default function HeroCarousel() {
           })}
         </div>
         <div
-          className="absolute left-4 sm:left-16 bottom-4 sm:bottom-16 sm:left-16 overflow-hidden"
+          className="absolute bottom-6 sm:bottom-10 left-6 right-6 md:left-12 md:right-12 flex flex-col md:flex-row items-end justify-between gap-6 pointer-events-auto"
           style={{
             zIndex: 60,
-            maxWidth: isMobile ? '280px' : '380px',
           }}
         >
-          <div className="flex items-center gap-2 mb-1.5 sm:mb-2 text-white/80 text-[11px] sm:text-xs uppercase tracking-[0.2em]">
+          <div className="overflow-hidden" style={{ maxWidth: isMobile ? '280px' : '380px' }}>
+          <div className="flex items-center gap-2 mb-1.5 sm:mb-2 text-stone-300 text-[10px] tracking-widest uppercase">
             <span>{currentItem.collection}</span>
-            <span aria-hidden="true">·</span>
-            <span>Slide {activeIndex + 1}/{totalSlides}</span>
+            <span aria-hidden="true">-</span>
+            <span>SLIDE {activeIndex + 1}/{totalSlides}</span>
           </div>
 
           <h1
-            className="mb-2 sm:mb-3 text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold uppercase font-serif text-white tracking-tight leading-none line-clamp-2 overflow-hidden"
+            className="mb-2 sm:mb-3 text-lg lg:text-xl font-serif text-white tracking-wide leading-snug"
             style={{
               opacity: 0.95,
               letterSpacing: '0',
-              lineHeight: 1,
             }}
           >
             {currentItem.title}
           </h1>
 
           <p
-            className="hidden sm:block text-xs sm:text-sm text-white/90 mb-4 sm:mb-5 leading-relaxed"
+            className="hidden sm:block text-xs text-stone-300 font-sans leading-relaxed mb-4 sm:mb-5"
             style={{
               lineHeight: 1.6,
             }}
@@ -743,10 +741,7 @@ export default function HeroCarousel() {
         </div>
 
         <div
-          className="absolute bottom-6 right-4 sm:bottom-16 sm:right-12"
-          style={{
-            zIndex: 60,
-          }}
+          className=""
         >
           <a
             href={currentItem.link}
@@ -754,13 +749,11 @@ export default function HeroCarousel() {
               e.preventDefault();
               setSelectedSlideModal(currentItem);
             }}
-            className={`${anton.className} flex items-center gap-3 sm:gap-4 px-6 sm:px-8 py-3 sm:py-4 text-white uppercase no-underline transition-opacity duration-200 cursor-pointer group`}
+            className={`${anton.className} flex items-center gap-3 sm:gap-4 px-6 sm:px-8 lg:px-7 py-3 sm:py-4 lg:py-3.5 text-[clamp(22px,3.5vw,48px)] lg:text-[20px] xl:text-[24px] text-white uppercase tracking-widest no-underline transition-opacity duration-200 cursor-pointer group`}
             style={{
               fontFamily: anton.style.fontFamily,
-              fontSize: 'clamp(22px, 3.5vw, 48px)',
               fontWeight: 700,
               opacity: 0.95,
-              letterSpacing: '0',
               lineHeight: 1.2,
             }}
           >
@@ -772,6 +765,7 @@ export default function HeroCarousel() {
               strokeWidth={2.5}
             />
           </a>
+          </div>
         </div>
       </div>
       {selectedSlideModal && (
