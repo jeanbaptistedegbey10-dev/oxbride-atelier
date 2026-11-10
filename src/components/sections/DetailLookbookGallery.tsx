@@ -65,11 +65,12 @@ function ProductCard({ piece }: { piece: LookbookProductData }) {
               <button
                 type="button"
                 onClick={(e) => {
+                  e.stopPropagation();
                   e.preventDefault();
                   goToPrev();
                 }}
                 aria-label="Image précédente"
-                className="absolute left-4 top-1/2 -translate-y-1/2 m-0 p-0 w-12 h-12 flex items-center justify-center leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-20 m-0 p-0 w-12 h-12 flex items-center justify-center leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >
                 <span className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm rounded-full transition-all duration-300 hover:bg-stone-900/70" />
                 <span className="relative z-10 text-white text-2xl font-serif font-bold leading-none">
@@ -79,11 +80,12 @@ function ProductCard({ piece }: { piece: LookbookProductData }) {
               <button
                 type="button"
                 onClick={(e) => {
+                  e.stopPropagation();
                   e.preventDefault();
                   goToNext();
                 }}
                 aria-label="Image suivante"
-                className="absolute right-4 top-1/2 -translate-y-1/2 m-0 p-0 w-12 h-12 flex items-center justify-center leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-20 m-0 p-0 w-12 h-12 flex items-center justify-center leading-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               >
                 <span className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm rounded-full transition-all duration-300 hover:bg-stone-900/70" />
                 <span className="relative z-10 text-white text-2xl font-serif font-bold leading-none">
@@ -93,12 +95,16 @@ function ProductCard({ piece }: { piece: LookbookProductData }) {
             </>
           )}
           {hasMultipleImages && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 items-center px-2 py-1.5 bg-stone-900/40 backdrop-blur-sm rounded-full shadow-lg">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 flex gap-2 items-center px-2 py-1.5 bg-stone-900/40 backdrop-blur-sm rounded-full shadow-lg">
               {Array.from({ length: imageCount }).map((_, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setCurrentImageIndex(idx)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setCurrentImageIndex(idx);
+                  }}
                   aria-label={`Image ${idx + 1}`}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     currentImageIndex === idx
