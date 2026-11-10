@@ -311,3 +311,79 @@ export interface CollectionData {
   imageUrl: string;
   imageAlt: string;
 }
+
+/* ============================================================================
+   Produit détail — Fiche produit unique (Storefront API)
+   ============================================================================ */
+
+/** Variante d'un produit Shopify (taille, couleur, prix, disponibilité). */
+export interface ProductVariantData {
+  id: string;
+  title: string;
+  sku: string | null;
+  price: string;
+  currencyCode: string;
+  availableForSale: boolean;
+  selectedOptions: Array<{ name: string; value: string }>;
+}
+
+/** Image d'un produit Shopify. */
+export interface ProductImageData {
+  url: string;
+  altText: string;
+}
+
+/** Fourchette de prix d'un produit. */
+export interface ProductPriceRangeData {
+  min: string;
+  max: string;
+  currency: string;
+}
+
+/** Nœud produit brut retourné par la Storefront API (fiche détaillée). */
+export interface ShopifyPriceRangeNode {
+  minVariantPrice: { amount: string; currencyCode: string } | null;
+  maxVariantPrice: { amount: string; currencyCode: string } | null;
+}
+
+export interface ShopifyProductVariantNode {
+  id: string;
+  title: string;
+  sku: string | null;
+  price: { amount: string; currencyCode: string } | null;
+  availableForSale: boolean | null;
+  selectedOptions: Array<{ name: string; value: string }>;
+}
+
+export interface ShopifyProductImageNode {
+  url: string;
+  altText: string | null;
+}
+
+export interface ShopifyProductImagesNode {
+  edges: Array<{ node: ShopifyProductImageNode }> | null;
+}
+
+export interface ShopifyProductNode {
+  id: string;
+  handle: string;
+  title: string;
+  descriptionHtml: string | null;
+  priceRange: ShopifyPriceRangeNode | null;
+  featuredImage: { url: string; altText: string | null } | null;
+  images: ShopifyProductImagesNode;
+  variants: { nodes: ShopifyProductVariantNode[] } | null;
+}
+
+/** Donnée complète d'une fiche produit exposée aux composants de détail. */
+export interface ProductDetailData {
+  id: string;
+  handle: string;
+  title: string;
+  descriptionHtml: string | null;
+  priceRange: ProductPriceRangeData | null;
+  variants: ProductVariantData[];
+  images: ProductImageData[];
+  featuredImage: ProductImageData | null;
+  link: string;
+}

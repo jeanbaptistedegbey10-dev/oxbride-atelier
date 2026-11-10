@@ -19,8 +19,13 @@ import type {
   EditorialManifestoData,
   LookbookProductData,
   PrivateSalonExperienceData,
+  ProductDetailData,
+  ProductImageData,
+  ProductPriceRangeData,
+  ProductVariantData,
   ShopifyCollectionNode,
   ShopifyMetaobject,
+  ShopifyProductNode,
 } from '@/types/shopify';
 import {
   PRIVATE_SALON_FALLBACK,
@@ -722,6 +727,228 @@ export async function getCollections({
       });
     }
     return null;
+  }
+}
+
+/* ============================================================================
+   Produit détail — Fiche unique ciblée par son handle
+   ============================================================================ */
+
+/**
+ * Requête : produit unique récupéré depuis la Storefront API par son handle.
+ * Récupère le titre, la description HTML, la gamme de prix, les variantes
+ * (options, prix, disponibilité) ainsi que la galerie d'images complète.
+ */
+export const PRODUCT_BY_HANDLE_QUERY = `
+  query GetProductByHandle($handle: String!) {
+    product(handle: $handle) {
+      id
+      handle
+      title
+      descriptionHtml
+      priceRange {
+        minVariantPrice { amount currencyCode }
+        maxVariantPrice { amount currencyCode }
+      }
+      featuredImage {
+        url
+        altText
+      }
+      images(first: 12) {
+        edges {
+          node {
+            url
+            altText
+          }
+        }
+      }
+      variants(first: 50, sortKey: TITLE) {
+        nodes {
+          id
+          title
+          sku
+          price {
+            amount
+            currencyCode
+          }
+          availableForSale
+          selectedOptions {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+`;
+
+export interface GetProductByHandleOptions {
+  cache?: RequestCache;
+}
+
+/**
+ * Récupère la fiche complète d'un produit Shopify par son handle.
+ * Retourne null si le produit est introuvable ou en cas d'erreur API
+ * (le composant appelant affiche un état vide élégant plutôt que de planter).
+ */
+export async function getProductByHandle(
+  handle: string,
+  { cache = 'no-store' }: GetProductByHandleOptions = {}
+): Promise<ProductDetailData | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Product] Appel Shopify :', { handle, cache });
+  }
+
+  try {
+    const data = await shopifyFetch<{ product: ShopifyProductNode | null }>(
+      PRODUCT_BY_HANDLE_QUERY,
+      { handle },
+      { cache }
+    );
+
+    const node = data.product;
+    if (!node) return null;
+
+    return {
+      id: node.id,
+      handle: node.handle,
+      title: node.title,
+      descriptionHtml: node.descriptionHtml ?? null,
+      priceRange:
+        node.priceRange?.minVariantPrice && node.priceRange.maxVariantPrice
+          ? {
+              min: node.priceRange.minVariantPrice.amount,
+              max: node.priceRange.maxVariantPrice.amount,
+              currency: node.priceRange.minVariantPrice.currencyCode,
+            }
+          : null,
+      variants: (node.variants?.nodes ?? []).map((variant) => ({
+        id: variant.id,
+        title: variant.title,
+        sku: variant.sku ?? null,
+        price: variant.price?.amount ?? '0',
+        currencyCode: variant.price?.currencyCode ?? 'EUR',
+        availableForSale: variant.availableForSale ?? false,
+        selectedOptions: variant.selectedOptions ?? [],
+      })),
+      images: (node.images?.edges ?? [])
+        .map((edge) => edge.node)
+        .map((image) => ({
+          url: image.url,
+          altText: image.altText ?? image.url,
+        })),
+      featuredImage: node.featuredImage
+        ? {
+            url: node.featuredImage.url,
+            altText: node.featuredImage.altText ?? node.title,
+          }
+        : null,
+      link: `/products/${node.handle}`,
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[Product] Échec Shopify Storefront API :', {
+        handle,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/* ============================================================================
+   Produits recommandés — Suggestions similaires (Storefront API)
+   ============================================================================ */
+
+/**
+ * Requête : liste de produits pour alimenter les recommandations de fiche.
+ * Le produit courant est exclu côté client après récupération.
+ */
+export const RECOMMENDED_PRODUCTS_QUERY = `
+  query GetRecommendedProducts($first: Int!) {
+    products(first: $first, sortKey: TITLE, reverse: false) {
+      nodes {
+        id
+        handle
+        title
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        featuredImage {
+          url
+          altText
+        }
+        images(first: 3) {
+          edges {
+            node {
+              url
+              altText
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export interface GetRecommendedProductsOptions {
+  /** Handle du produit courant à exclure des suggestions. */
+  excludeHandle: string;
+  /** Nombre de produits recommandés à retourner (défaut : 4). */
+  first?: number;
+  cache?: RequestCache;
+}
+
+/**
+ * Récupère des produits similaires pour la section de recommandations en bas
+ * de fiche. Retourne un tableau vide en cas d'erreur ou d'absence de produit.
+ */
+export async function getRecommendedProducts({
+  excludeHandle,
+  first = 4,
+  cache = 'no-store',
+}: GetRecommendedProductsOptions): Promise<LookbookProductData[]> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Recommendations] Appel Shopify :', { excludeHandle, first });
+  }
+
+  try {
+    // On demande une marge pour garantir `first` suggestions après exclusion
+    // du produit courant consulté.
+    const fetchFirst = Math.min(Math.max(first + 4, 8), 20);
+    const data = await shopifyFetch<{ products: { nodes: LookbookProductNode[] } }>(
+      RECOMMENDED_PRODUCTS_QUERY,
+      { first: fetchFirst },
+      { cache }
+    );
+
+    const nodes = (data.products?.nodes ?? []).filter(Boolean);
+    return nodes
+      .filter((node) => node.handle !== excludeHandle)
+      .slice(0, first)
+      .map((node) => ({
+        id: node.id,
+        handle: node.handle,
+        title: node.title,
+        price:
+          node.priceRange?.minVariantPrice != null
+            ? `${node.priceRange.minVariantPrice.amount} ${node.priceRange.minVariantPrice.currencyCode}`
+            : 'Sur devis',
+        imageUrl: node.featuredImage?.url ?? '',
+        imageAlt: node.featuredImage?.altText ?? node.title,
+        images: (node.images?.edges ?? [])
+          .map((edge) => edge.node)
+          .map((image) => ({
+            url: image.url,
+            altText: image.altText ?? image.url,
+          })),
+        link: `/products/${node.handle}`,
+      }));
+  } catch {
+    return [];
   }
 }
 
