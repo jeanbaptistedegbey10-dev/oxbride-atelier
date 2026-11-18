@@ -126,7 +126,7 @@ export default async function ProductPage({
         </div>
 
         {/* ========================================================================
-            Accordéons d'informations (en dessous de la fiche)
+            Accordéons d'informations — pleine largeur, sous le duo image/variantes
             ======================================================================== */}
         <ProductAccordion descriptionHtml={product.descriptionHtml} />
 

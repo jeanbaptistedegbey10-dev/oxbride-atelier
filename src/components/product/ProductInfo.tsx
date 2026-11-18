@@ -12,7 +12,6 @@ import { Check, ShoppingBag, Truck } from 'lucide-react';
 import Link from 'next/link';
 import type { ProductDetailData, ProductVariantData } from '@/types/shopify';
 import VariantSelector from './VariantSelector';
-import ProductAccordion from './ProductAccordion';
 
 interface ProductInfoProps {
   product: ProductDetailData;
@@ -103,8 +102,6 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           réservation en salon privé.
         </p>
       )}
-
-      <ProductAccordion descriptionHtml={product.descriptionHtml} />
     </div>
   );
 }
