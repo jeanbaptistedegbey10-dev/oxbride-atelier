@@ -16,6 +16,8 @@ import { shopifyFetch } from './client';
 import { parseEditorialManifesto } from '@/types/shopify';
 import type {
   CollectionData,
+  CollectionDetailData,
+  CollectionFilterData,
   EditorialManifestoData,
   LookbookProductData,
   PrivateSalonExperienceData,
@@ -320,6 +322,8 @@ export const PRODUCTS_QUERY = `
         id
         handle
         title
+        productType
+        tags
         priceRange {
           minVariantPrice {
             amount
@@ -379,6 +383,8 @@ export async function getProducts({
       id: node.id,
       handle: node.handle,
       title: node.title,
+      tags: node.tags ?? [],
+      productType: node.productType ?? null,
       price:
         node.priceRange?.minVariantPrice != null
           ? `${node.priceRange.minVariantPrice.amount} ${node.priceRange.minVariantPrice.currencyCode}`
@@ -497,6 +503,8 @@ export interface LookbookProductNode {
   id: string;
   handle: string;
   title: string;
+  productType?: string | null;
+  tags?: string[] | null;
   priceRange: LookbookPriceRangeNode | null;
   featuredImage: { url: string; altText: string | null } | null;
   images: {
@@ -731,6 +739,155 @@ export async function getCollections({
 }
 
 /* ============================================================================
+   Collections pour filtres — Requête avec comptage produits
+   ============================================================================ */
+
+/**
+ * Requête : liste des collections publiques avec comptage des produits.
+ * Permet d'afficher le nombre de pièces par collection dans les filtres.
+ */
+export const COLLECTIONS_WITH_COUNT_QUERY = `
+  query GetCollectionsWithCount($first: Int!, $reverse: Boolean!) {
+    collections(first: $first, sortKey: TITLE, reverse: $reverse) {
+      nodes {
+        id
+        handle
+        title
+        descriptionHtml
+        image {
+          url
+          altText
+        }
+        productsCount {
+          count
+        }
+      }
+    }
+  }
+`;
+
+export interface GetCollectionsWithCountOptions {
+  first?: number;
+  reverse?: boolean;
+  cache?: RequestCache;
+}
+
+/**
+ * Récupère les collections publiques avec le nombre de produits.
+ * Exclut la collection "lookbook" (handle ou titre).
+ * Retourne un tableau vide en cas d'erreur (pas de null pour éviter les erreurs de rendu).
+ */
+export async function getCollectionsWithCount({
+  first = 50,
+  reverse = false,
+  cache = 'no-store',
+}: GetCollectionsWithCountOptions = {}): Promise<CollectionFilterData[]> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CollectionsWithCount] Appel Shopify :', { first, reverse, cache });
+  }
+
+  try {
+    const data = await shopifyFetch<{ collections: { nodes: ShopifyCollectionNode[] } }>(
+      COLLECTIONS_WITH_COUNT_QUERY,
+      { first, reverse },
+      { cache }
+    );
+
+    const nodes = data.collections?.nodes ?? [];
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[CollectionsWithCount] Réponse Shopify :', { nodesLength: nodes.length });
+    }
+
+    // Exclure la collection lookbook
+    const filtered = nodes.filter((node) => {
+      const handle = node.handle.toLowerCase();
+      const title = node.title.toLowerCase();
+      return handle !== 'lookbook' && !title.includes('lookbook');
+    });
+
+    if (filtered.length > 0) {
+      return filtered.map((node) => ({
+        id: node.id,
+        handle: node.handle,
+        title: node.title,
+        subtitle: '',
+        description: node.descriptionHtml ?? '',
+        link: `/collections/${node.handle}`,
+        imageUrl: node.image?.url ?? '',
+        imageAlt: node.image?.altText ?? node.title,
+        productsCount: node.productsCount?.count ?? 0,
+      }));
+    }
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[CollectionsWithCount] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
+  // Fallback statique élégant pour le build / quand Shopify indisponible
+  return [
+    {
+      id: 'fallback-1',
+      handle: 'femme-mariee',
+      title: 'Femme / Mariée',
+      subtitle: '',
+      description: '',
+      link: '/collections/femme-mariee',
+      imageUrl: '',
+      imageAlt: 'Femme / Mariée',
+      productsCount: 0,
+    },
+    {
+      id: 'fallback-2',
+      handle: 'homme-costumes',
+      title: 'Homme / Costumes',
+      subtitle: '',
+      description: '',
+      link: '/collections/homme-costumes',
+      imageUrl: '',
+      imageAlt: 'Homme / Costumes',
+      productsCount: 0,
+    },
+    {
+      id: 'fallback-3',
+      handle: 'alliances-joaillerie',
+      title: 'Alliances & Joaillerie',
+      subtitle: '',
+      description: '',
+      link: '/collections/alliances-joaillerie',
+      imageUrl: '',
+      imageAlt: 'Alliances & Joaillerie',
+      productsCount: 0,
+    },
+    {
+      id: 'fallback-4',
+      handle: 'ensembles-couple',
+      title: 'Ensembles Couple',
+      subtitle: '',
+      description: '',
+      link: '/collections/ensembles-couple',
+      imageUrl: '',
+      imageAlt: 'Ensembles Couple',
+      productsCount: 0,
+    },
+    {
+      id: 'fallback-5',
+      handle: 'cortege',
+      title: 'Cortège',
+      subtitle: '',
+      description: '',
+      link: '/collections/cortege',
+      imageUrl: '',
+      imageAlt: 'Cortège',
+      productsCount: 0,
+    },
+  ];
+}
+
+/* ============================================================================
    Produit détail — Fiche unique ciblée par son handle
    ============================================================================ */
 
@@ -949,6 +1106,145 @@ export async function getRecommendedProducts({
       }));
   } catch {
     return [];
+  }
+}
+
+/* ============================================================================
+   Collection (détail) — Page /collections/[handle]
+   ============================================================================ */
+
+/**
+ * Requête : produits + métadonnées d'une collection ciblée par son handle.
+ * Le handle virtuel `all` n'est pas interrogé ici (l'appelant bascule sur
+ * `getProducts` pour récupérer l'intégralité du catalogue).
+ */
+export const COLLECTION_PRODUCTS_QUERY = `
+  query GetCollectionProducts($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      descriptionHtml
+      image {
+        url
+        altText
+      }
+      products(first: $first, sortKey: TITLE, reverse: false) {
+        nodes {
+          id
+          handle
+          title
+          productType
+          tags
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          featuredImage {
+            url
+            altText
+          }
+          images(first: 5) {
+            edges {
+              node {
+                url
+                altText
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export interface GetCollectionProductsOptions {
+  /** Nombre maximal de produits à récupérer (défaut : 48). */
+  first?: number;
+  cache?: RequestCache;
+}
+
+/** Réponse brute de la requête collection (Storefront API). */
+interface CollectionProductsResponse {
+  collection: {
+    id: string;
+    handle: string;
+    title: string;
+    descriptionHtml: string | null;
+    image: { url: string; altText: string | null } | null;
+    products: { nodes: LookbookProductNode[] } | null;
+  } | null;
+}
+
+/** Mappe un nœud produit brut vers le format plat `LookbookProductData`. */
+function mapLookbookNode(node: LookbookProductNode): LookbookProductData {
+  return {
+    id: node.id,
+    handle: node.handle,
+    title: node.title,
+    tags: node.tags ?? [],
+    productType: node.productType ?? null,
+    price:
+      node.priceRange?.minVariantPrice != null
+        ? `${node.priceRange.minVariantPrice.amount} ${node.priceRange.minVariantPrice.currencyCode}`
+        : 'Sur devis',
+    imageUrl: node.featuredImage?.url ?? '',
+    imageAlt: node.featuredImage?.altText ?? node.title,
+    images:
+      node.images?.edges
+        ?.map((edge) => ({
+          url: edge.node.url,
+          altText: edge.node.altText ?? node.title,
+        }))
+        .filter(Boolean) ?? [],
+    link: `/products/${node.handle}`,
+  };
+}
+
+/**
+ * Récupère les produits et métadonnées d'une collection depuis la Storefront API.
+ * Retourne `null` si la collection est introuvable ou en cas d'erreur réseau
+ * (l'appelant affiche alors un état élégant ou bascule sur le catalogue).
+ */
+export async function getCollectionProducts(
+  handle: string,
+  { first = 48, cache = 'no-store' }: GetCollectionProductsOptions = {}
+): Promise<CollectionDetailData | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Collection] Appel Shopify :', { handle, first, cache });
+  }
+
+  try {
+    const data = await shopifyFetch<CollectionProductsResponse>(
+      COLLECTION_PRODUCTS_QUERY,
+      { handle, first },
+      { cache }
+    );
+
+    const collection = data.collection;
+    if (!collection) return null;
+
+    return {
+      id: collection.id,
+      handle: collection.handle,
+      title: collection.title,
+      descriptionHtml: collection.descriptionHtml ?? null,
+      imageUrl: collection.image?.url ?? '',
+      imageAlt: collection.image?.altText ?? collection.title,
+      products: (collection.products?.nodes ?? [])
+        .filter(Boolean)
+        .map((node) => mapLookbookNode(node)),
+    };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[Collection] Échec Shopify Storefront API :', {
+        handle,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
   }
 }
 

@@ -272,6 +272,10 @@ export interface LookbookProductData {
   imageAlt: string;
   images: Array<{ url: string; altText: string }>;
   link: string;
+  /** Tags Shopify (facultatif) — utilisés pour les filtres de collection. */
+  tags?: string[];
+  /** Type de produit Shopify (facultatif) — utilisé comme facette « Style ». */
+  productType?: string | null;
 }
 
 
@@ -286,6 +290,7 @@ export interface ShopifyCollectionNode {
   title: string;
   descriptionHtml: string | null;
   image: { url: string; altText: string | null } | null;
+  productsCount: { count: number } | null;
 }
 
 /** Donnée d’un pilier de collection exposée aux composants. */
@@ -310,6 +315,34 @@ export interface CollectionData {
   link: string;
   imageUrl: string;
   imageAlt: string;
+}
+
+/** Donnée de collection pour les filtres (inclut le comptage produits). */
+export interface CollectionFilterData {
+  id: string;
+  handle: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  link: string;
+  imageUrl: string;
+  imageAlt: string;
+  productsCount: number;
+}
+
+/**
+ * Donnée complète d'une collection (page `/collections/[handle]`).
+ * `products` est une liste déjà normalisée au format `LookbookProductData`
+ * (partagé avec la grille de recommandations et le lookbook).
+ */
+export interface CollectionDetailData {
+  id: string;
+  handle: string;
+  title: string;
+  descriptionHtml: string | null;
+  imageUrl: string;
+  imageAlt: string;
+  products: LookbookProductData[];
 }
 
 /* ============================================================================

@@ -22,3 +22,43 @@
 - Hooks React optimisés.
 - Animations fluides avec Framer Motion.
 - Typage TypeScript strict pour la Storefront API Shopify et les Metaobjects `atelier_experience`.
+
+## Design « Neo-Luxe » (référence visuelle)
+- Fond champagne perle : `#F9F8F6` (toutes les pages produit/collection).
+- Titres : serif éditorial (Times New Roman, fallback serif), graisse bold, `tracking-tight`.
+- Cartes : ombres douces (`shadow-[0_10px_30px_rgba(0,0,0,0.04)]` → `hover` renforcée), zoom image au survol (`group-hover:scale-105`), coins arrondis `rounded-3xl` / `rounded-2xl`.
+- Fichier de référence du système visuel : `design.md`.
+
+## Architecture — Fiche produit (`/products/[handle]`)
+- `page.tsx` (serveur) : `grid lg:grid-cols-12` → galerie `col-span-7` | `ProductInfo` sticky `col-span-5`.
+- `ProductInfo` (client) : titre, prix, variantes, CTA panier/devis. **Ne contient plus les accordéons.**
+- `ProductAccordion` (client) : rendu **pleine largeur**, sous le duo image/variantes et **au-dessus** de `ProductRecommendations`.
+- `ProductGallery` (client) :
+  - Image principale `aspect-[3/4] lg:aspect-[4/5] max-h-[600px]`, centrée.
+  - Colonne de miniatures à gauche (`lg:w-[90px]`) en **flex column** : `ChevronUp` (haut) → zone `flex-1 min-h-0 overflow-y-auto` → `ChevronDown` (bas). **Aucun `absolute`** : pas de chevauchement avec la dernière miniature.
+  - Hauteur de la colonne **strictement synchronisée** à l'image via `ResizeObserver` → variable CSS `--thumb-height` (`lg:h-[var(--thumb-height,600px)]`).
+  - Défilement fluide : `scrollBy({ top: ±120, behavior: 'smooth' })`.
+  - Mobile : miniatures en ligne horizontale défilable (pas de flèches).
+  - Scrollbar discrète : utilitaire `.custom-scrollbar` (dans `globals.css`).
+
+## Architecture — Route collection unifiée (`/collections` et `/collections/[handle]`)
+- Deux points d'entrée, **même rendu** via le composant serveur partagé `CollectionView` :
+  - `/collections` (index) → catalogue complet (handle virtuel `all`, `getProducts`). Aucune erreur 404 sur l'accès direct.
+  - `/collections/[handle]` → handle `all` = catalogue complet ; sinon collection ciblée (`getCollectionProducts`).
+- Layout **asymétrique** : `grid lg:grid-cols-[260px_1fr]`
+  - Gauche : `CollectionFilters` (client) **sticky** (`lg:sticky lg:top-24`), fond `#F9F8F6`, bordures fines, panneau blanc translucide.
+  - Droite : `CollectionToolbar` (recherche + compteur) + grille **stricte 3 colonnes** (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`).
+- `CollectionFilters` (client) : filtres basés sur les **collections Shopify réelles** (excluant 'lookbook') :
+  - **Catégories principales** (ex: "Femme / Mariée", "Homme / Costumes", "Alliances & Joaillerie", "Ensembles Couple", "Cortège") — cases à cocher, sélection multiple.
+  - **Sous-catégories** (enfants) dans accordéon (ex: "Classique Royale", "Édition Contemporaine", "Silhouette Sirène & Dentelle" sous "Femme / Mariée").
+  - **Tri** : `Notre sélection`, `Prix ↑/↓`, `Nouveautés`, `Nom A→Z/Z→A`.
+  - URL partageable/indexable : `?category=...&subcategory=...&sort=...&q=...` (multi-valeurs via `,`).
+- `collectionUtils.ts` (serveur, partagé) : `buildCollectionFilterGroups`, `filterCollectionBySelection`, `parseCollectionSelection`, `hasActiveCollectionFilters`, `sortCollectionPieces`, `COLLECTION_SORT_OPTIONS`, `ALL_COLLECTION_HANDLE`.
+- Hiérarchie inférée par nommage : titre contenant " / " = catégorie principale ; sous-collections = titre commençant par le parent.
+- Filtrage collections + tri **côté serveur** dans `CollectionView`.
+- Cartes : `CollectionProductCard` (client) — bordure délicate, ombre douce, zoom au survol, **galerie interactive** (flèches + points) si plusieurs images.
+- Données : `getCollectionsWithCount` récupère `productsCount` via Storefront API ; `ShopifyCollectionNode` étendu avec `productsCount`.
+
+## Interdiction stricte (rappel)
+- Le tri/filtrage et la récupération de données se font côté serveur ; ne jamais dupliquer la logique métier dans un composant client.
+- Ne jamais introduire de `absolute` pour la colonne de miniatures (cf. bug de chevauchement corrigé).
