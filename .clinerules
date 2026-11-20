@@ -62,3 +62,47 @@
 ## Interdiction stricte (rappel)
 - Le tri/filtrage et la récupération de données se font côté serveur ; ne jamais dupliquer la logique métier dans un composant client.
 - Ne jamais introduire de `absolute` pour la colonne de miniatures (cf. bug de chevauchement corrigé).
+
+## Architecture — Footer global (`src/components/layout/Footer.tsx`)
+- **Client component** (`'use client'`) : newsletter interactive + retour en haut + année dynamique via `useEffect`.
+- **Fond sombre** : `bg-[#1A1D24]` avec accents sable/or rosé (`#D9C7B8`) et champagne poudré (`#EBE5DF`).
+- **3 colonnes** : Identité + Newsletter | Collections | La Maison & Salons.
+- **Barre inférieure** : réseaux sociaux (icônes SVG), mentions légales, copyright dynamique, bouton retour en haut.
+- **Intégration** : `<Footer />` ajouté dans `src/app/layout.tsx` (sous `{children}`, après `</div>`).
+
+## Règle critique — Tailles d'icônes SVG
+- **INTERDICTION ABSOLUE** de laisser une icône SVG sans taille fixe dans un composant.
+- Toutes les icônes (Lucide React, SVG inline) **DOIVENT** avoir `w-4 h-4` (petites) ou `w-5 h-5` (normales) ou `w-6 w-6` (grandes).
+- Exception : icônes décoratives avec `aria-hidden="true"` dans un contexte où la taille est gérée par le parent flex/grid (rare, à éviter).
+
+## Règle critique — Cohérence des routes & anti-404 (NAVIGATION)
+- **Route canonique** « L'Atelier » : **`/latelier`**. L'ancien alias `/atelier` redirige proprement vers `/latelier` (`src/app/atelier/page.tsx` → `redirect('/latelier')`, HTTP 308). **Ne jamais** pointer le menu vers `/atelier`.
+- **Navigation** (`Header.tsx` + `Footer.tsx`) : chaque `href` interne DOIT correspondre à une route existante. Routes valides actuelles :
+  - `/` (accueil), `/collections`, `/collections/[handle]` (dynamique, jamais 404 : état vide élégant), `/products/[handle]`
+  - `/latelier` (+ alias `/atelier`), `/sur-mesure`, `/rendez-vous`
+  - Pages légales : `/mentions-legales`, `/politique-confidentialite`, `/cgv`, `/accessibilite`
+- **Vérification anti-404 obligatoire** : après toute modification du menu, du Footer, du Header ou d'un lien interne, vérifier qu'aucun `href` ne pointe vers une route inexistante. Utiliser `grep` pour lister les `href="/..."` et confirmer chaque cible.
+- Les liens vers des collections (`/collections/<handle>`) passent par la route dynamique : un handle inconnu affiche l'état vide (pas de 404).
+- Pour ajouter une page : créer le dossier `src/app/<route>/page.tsx`. Pour un alias historique : page avec `redirect()` (préférer à un `permanent: true` dans `next.config.ts` pour rester compatible Turbopack/cache).
+
+## Architecture — Page « Rendez-vous » (`src/app/rendez-vous/page.tsx`)
+- **Client Component** (`'use client'`) : parcours de réservation interactif, état local via `useState`/`useMemo`.
+- **Parcours en 3 étapes** (indicateur `StepIndicator` : Salon & Prestation → Coordonnées → Confirmation) :
+  1. **Lieu** : Paris (`PAR`) ou Abomey-Calavi (`BEN`) + **prestation** (Essayage Mariée, Haute Couture Sur-Mesure, Tailoring Homme, Ensembles Couple, Ajustements).
+  2. **Coordonnées** : date (préavis **48h minimum** calculé côté client via `getMinBookingDate()`, attribut `min` sur l'input), créneau, nom, courriel, téléphone, accompagnants (0–4). Bouton « Confirmer » désactivé tant que les champs requis ne sont pas remplis.
+  3. **Confirmation** : récapitulatif + **numéro de dossier** `OXB-<PAR|BEN>-XXXX` généré par `generateDossierNumber()`. Bouton de réinitialisation.
+- **Sections éditoriales** : Hero, widget de réservation, Privilèges des salons (4 cartes), FAQ courte (balises `<details>`), CTA final.
+- **Liens** : `/collections`, `/sur-mesure`, `/latelier` (cohérents avec la règle anti-404).
+- **Icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5` / `w-7 h-7`), `aria-hidden="true"` systématique.
+- **Aucune simulation API réelle** : confirmation purement locale (à brancher sur un endpoint de réservation ultérieurement).
+
+## Architecture — Page « L'Atelier » (`src/app/latelier/page.tsx`)
+- **Server Component** : contenu éditorial statique, pas de `'use client'`.
+- **Sections** :
+  1. Hero : titre Serif, CTA double (Essayage / Savoir-Faire), pas d'image de fond.
+  2. Histoire & Philosophie : 2 colonnes (texte + placeholder visuel), dialogue Paris ↔ Bénin en 3 colonnes.
+  3. 4 Piliers du Savoir-Faire : grille `md:grid-cols-2 lg:grid-cols-4`, fond `stone-900`.
+  4. Matières d'Exception : grille `md:grid-cols-2 lg:grid-cols-3`, cartes blanches `bg-white/60`.
+  5. Deux Lieux & CTA : grille `lg:grid-cols-2`, cartes avec infos pratiques + CTA final.
+- **Icônes** : toutes dimensionnées (`w-4 h-4` ou `w-5 h-5`), `aria-hidden="true"` systématique.
+- **Typographie** : Serif pour titres, Sans pour corps, `tracking-[0.3em]` pour eyebrows.

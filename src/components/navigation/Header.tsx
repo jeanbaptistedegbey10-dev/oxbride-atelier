@@ -25,8 +25,7 @@ interface DropdownColumn {
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/collections', label: 'Collections', hasDropdown: true },
-  { href: '/atelier', label: "L'Atelier" },
-  { href: '/sur-mesure', label: 'Sur-Mesure' },
+  { href: '/latelier', label: "L'Atelier" },
   { href: '/rendez-vous', label: 'Rendez-vous' },
 ];
 

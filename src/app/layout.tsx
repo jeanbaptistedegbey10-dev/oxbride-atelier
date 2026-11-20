@@ -1,4 +1,5 @@
 import Header from "@/components/navigation/Header";
+import Footer from "@/components/layout/Footer";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +28,9 @@ export default function RootLayout({
         <div className="flex-1">
           {children}
         </div>
+        
+        {/* Pied de page global */}
+        <Footer />
       </body>
     </html>
   );
