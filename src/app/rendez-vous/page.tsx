@@ -1,5 +1,5 @@
 /** @file
- * OXBride Atelier — Page « Rendez-vous & Salons Privés » (Neo-Luxe).
+ * OXBride Atelier — Page « Rendez-vous & Salons Privés » (Neo-Luxe Lumineux).
  * Route : /rendez-vous
  *
  * Parcours de réservation interactif côté client en 3 étapes :
@@ -10,10 +10,12 @@
  *
  * Sections éditoriales : privilèges des salons + FAQ courte.
  *
- * Conventions :
- * - Fond champagne poudré `bg-[#F9F8F6]`, typo Serif, bordures
- *   `border-stone-200/80`, contrastes soignés.
- * - Toutes les icônes SVG ont une taille explicite (`w-4 h-4` / `w-5 h-5`).
+ * Conventions (palette lumineuse & nuancée) :
+ * - Fond principal champagne `bg-[#F9F8F6]`
+ * - Nuances alternatives : sable chaud `bg-[#F2ECE4]`, ivoire `bg-[#FAF7F3]`
+ * - Cartes : `bg-white/90` ou `bg-white/70` avec bordures `border-stone-200/80`
+ * - Accents dorés/sable `text-[#9A7B5B]` / `border-[#C8B094]`
+ * - Typo Serif, icônes `w-4 h-4` / `w-5 h-5`
  * - Contenu intégralement en français (marque OXBride Atelier).
  */
 
@@ -36,6 +38,7 @@ import {
   ShieldCheck,
   Scissors,
 } from 'lucide-react';
+import { APPOINTMENT_SLOTS, PRESTATION_IDS } from '@/lib/constants/appointments';
 
 /* ------------------------------------------------------------------ */
 /*  Données éditoriales                                                */
@@ -81,9 +84,10 @@ const PRESTATIONS = [
   { id: 'tailoring-homme', label: 'Tailoring Homme', hint: 'Costumes, smokings & coupes ajustées' },
   { id: 'ensembles-couple', label: 'Ensembles Couple', hint: 'Harmonie & coordination du cortège' },
   { id: 'ajustements', label: 'Ajustements', hint: 'Retouches & finitions sur pièce existante' },
-];
+] as const;
 
-const CRENEAUX = ['10h00', '11h00', '12h00', '14h00', '15h00', '16h00', '17h00'];
+// Créneaux partagés avec l'API (format 'HHhMM')
+const CRENEAUX = APPOINTMENT_SLOTS;
 
 const PRIVILEGES = [
   {
@@ -200,7 +204,7 @@ function StepIndicator({ current }: { current: number }) {
                   isDone
                     ? 'border-stone-900 bg-stone-900 text-white'
                     : isActive
-                      ? 'border-amber-700 text-amber-700 bg-white/60'
+                      ? 'border-[#9A7B5B] text-[#9A7B5B] bg-white/60'
                       : 'border-stone-300 text-stone-400 bg-transparent',
                 ].join(' ')}
                 aria-hidden="true"
@@ -240,6 +244,8 @@ export default function RendezVousPage() {
   }, []);
 
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Étape 1 — Lieu & prestation
   const [lieuId, setLieuId] = useState<'PAR' | 'BEN' | ''>('');
@@ -264,10 +270,40 @@ export default function RendezVousPage() {
     date && creneau && nom.trim() && email.trim() && telephone.trim(),
   );
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!canConfirm || !lieuId) return;
-    setDossier(generateDossierNumber(lieuId));
-    setStep(3);
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lieuId,
+          prestationId,
+          date,
+          creneau,
+          nom: nom.trim(),
+          email: email.trim(),
+          telephone: telephone.trim(),
+          accompagnants,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.errors?.[0] || 'Erreur lors de la réservation. Veuillez réessayer.');
+      }
+
+      setDossier(data.dossier);
+      setStep(3);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -286,11 +322,11 @@ export default function RendezVousPage() {
   return (
     <main className="min-h-screen bg-[#F9F8F6] text-stone-900">
       {/* ================================================================
-          Hero — Rendez-vous
+          Hero — Rendez-vous (Champagne)
           ================================================================ */}
-      <section className="relative overflow-hidden border-b border-stone-200/80">
+      <section className="relative overflow-hidden border-b border-stone-200/80 bg-[#F9F8F6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40 text-center">
-          <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans mb-6">
+          <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans mb-6">
             Salons Privés
           </span>
           <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-[1] tracking-tight text-stone-900 mb-8">
@@ -311,7 +347,7 @@ export default function RendezVousPage() {
             </a>
             <Link
               href="/collections"
-              className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-stone-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-[#F2ECE4] transition-colors"
             >
               Voir les collections
             </Link>
@@ -320,9 +356,9 @@ export default function RendezVousPage() {
       </section>
 
       {/* ================================================================
-          Parcours de réservation (widget interactif)
+          Parcours de réservation (widget interactif) — Blanc chaud
           ================================================================ */}
-      <section id="reserver" className="py-20 lg:py-28">
+      <section id="reserver" className="py-20 lg:py-28 bg-white/50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-4">
@@ -333,7 +369,7 @@ export default function RendezVousPage() {
             </p>
           </div>
 
-          <div className="rounded-3xl border border-stone-200/80 bg-white/70 p-6 sm:p-10 lg:p-12 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+          <div className="rounded-3xl border border-stone-200/80 bg-white/80 p-6 sm:p-10 lg:p-12 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
             <StepIndicator current={step} />
 
             {/* ---------------- ÉTAPE 1 : Salon & Prestation ---------------- */}
@@ -363,8 +399,8 @@ export default function RendezVousPage() {
                           ].join(' ')}
                         >
                           <div className="flex items-center gap-2 mb-2">
-                            <MapPin className="w-4 h-4 shrink-0 text-amber-700" aria-hidden="true" />
-                            <span className="text-[10px] uppercase tracking-[0.2em] text-amber-700/90 font-sans">
+                            <MapPin className="w-4 h-4 shrink-0 text-[#9A7B5B]" aria-hidden="true" />
+                            <span className="text-[10px] uppercase tracking-[0.2em] text-[#9A7B5B] font-sans">
                               {lieu.city}
                             </span>
                           </div>
@@ -454,6 +490,15 @@ export default function RendezVousPage() {
                     {selectedLieu ? `${selectedLieu.city} — ${selectedLieu.address}` : ''}
                   </p>
                 </div>
+
+                {submitError && (
+                  <div
+                    className="rounded-xl border border-amber-700/30 bg-amber-50/50 p-4 text-sm text-amber-700"
+                    role="alert"
+                  >
+                    {submitError}
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
@@ -575,7 +620,8 @@ export default function RendezVousPage() {
                   <button
                     type="button"
                     onClick={() => setStep(1)}
-                    className="inline-flex items-center justify-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-stone-100 transition-colors"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center justify-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-[#F2ECE4] transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
                     Retour
@@ -583,11 +629,40 @@ export default function RendezVousPage() {
                   <button
                     type="button"
                     onClick={handleConfirm}
-                    disabled={!canConfirm}
+                    disabled={!canConfirm || isSubmitting}
                     className="inline-flex items-center justify-center gap-2 rounded-none border border-stone-900 bg-stone-900 py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-white hover:bg-stone-700 hover:border-stone-700 transition-colors disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    Confirmer le rendez-vous
-                    <Check className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    {isSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-4 w-4"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          aria-hidden="true"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        Enregistrement…
+                      </>
+                    ) : (
+                      <>
+                        Confirmer le rendez-vous
+                        <Check className="w-4 h-4 shrink-0" aria-hidden="true" />
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -613,7 +688,7 @@ export default function RendezVousPage() {
 
                 <div className="mx-auto max-w-lg rounded-2xl border border-stone-200/80 bg-[#F9F8F6] p-6 sm:p-8">
                   <div className="mb-4 flex items-center justify-between border-b border-stone-200 pb-4">
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-amber-700/90 font-sans">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-[#9A7B5B] font-sans">
                       Numéro de dossier
                     </span>
                     <span className="font-serif text-lg font-bold text-stone-900">
@@ -665,7 +740,7 @@ export default function RendezVousPage() {
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-stone-100 transition-colors"
+                    className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-[#F2ECE4] transition-colors"
                   >
                     Réserver un autre créneau
                   </button>
@@ -684,9 +759,9 @@ export default function RendezVousPage() {
       </section>
 
       {/* ================================================================
-          Privilèges des salons
+          Privilèges des salons (Sable chaud)
           ================================================================ */}
-      <section className="py-20 lg:py-28 border-t border-stone-200/80">
+      <section className="py-20 lg:py-28 border-t border-stone-200/80 bg-[#F2ECE4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16 lg:mb-20">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-4">
@@ -702,9 +777,9 @@ export default function RendezVousPage() {
               return (
                 <div
                   key={privilege.title}
-                  className="rounded-3xl overflow-hidden border border-stone-200/80 bg-white/60 p-8"
+                  className="rounded-3xl overflow-hidden border border-stone-200/80 bg-white/90 p-8"
                 >
-                  <Icon className="w-5 h-5 shrink-0 text-amber-700 mb-4" aria-hidden="true" />
+                  <Icon className="w-5 h-5 shrink-0 text-[#9A7B5B] mb-4" aria-hidden="true" />
                   <h3 className="font-serif text-xl font-bold text-stone-900 mb-3">
                     {privilege.title}
                   </h3>
@@ -719,9 +794,9 @@ export default function RendezVousPage() {
       </section>
 
       {/* ================================================================
-          FAQ courte
+          FAQ courte (Ivoire)
           ================================================================ */}
-      <section className="py-20 lg:py-28 border-t border-stone-200/80">
+      <section className="py-20 lg:py-28 border-t border-stone-200/80 bg-[#FAF7F3]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-4">
@@ -732,7 +807,7 @@ export default function RendezVousPage() {
             {FAQ.map((item) => (
               <details
                 key={item.question}
-                className="group rounded-2xl border border-stone-200/80 bg-white/60 p-5 sm:p-6"
+                className="group rounded-2xl border border-stone-200/80 bg-white/90 p-5 sm:p-6"
               >
                 <summary className="flex cursor-pointer items-center justify-between gap-4 font-serif text-lg font-medium text-stone-900 marker:content-none list-none">
                   <span>{item.question}</span>
@@ -753,9 +828,9 @@ export default function RendezVousPage() {
       </section>
 
       {/* ================================================================
-          CTA Final
+          CTA Final (Champagne)
           ================================================================ */}
-      <section className="py-20 lg:py-28 border-t border-stone-200/80">
+      <section className="py-20 lg:py-28 border-t border-stone-200/80 bg-[#F9F8F6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h3 className="font-serif text-3xl md:text-4xl font-bold text-stone-900 mb-4">
             Votre histoire commence ici
@@ -775,7 +850,7 @@ export default function RendezVousPage() {
             </a>
             <Link
               href="/sur-mesure"
-              className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-stone-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-[#F2ECE4] transition-colors"
             >
               Découvrir le sur-mesure
             </Link>

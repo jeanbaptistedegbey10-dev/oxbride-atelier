@@ -9,8 +9,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import type { LookbookProductData } from '@/types/shopify';
+import { useWishlist } from '@/components/wishlist/WishlistProvider';
 
 interface CollectionProductCardProps {
   piece: LookbookProductData;
@@ -31,6 +32,25 @@ export default function CollectionProductCard({
   const safeIndex = index < gallery.length ? index : 0;
   const current = gallery[safeIndex];
   const hasMultiple = gallery.length > 1;
+
+  const { toggle, has } = useWishlist();
+  const wishlisted = has(piece.handle);
+
+  const handleToggleWishlist = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggle({
+        handle: piece.handle,
+        title: piece.title,
+        price: piece.price,
+        imageUrl: piece.imageUrl,
+        imageAlt: piece.imageAlt,
+        link: piece.link,
+      });
+    },
+    [toggle, piece.handle, piece.title, piece.price, piece.imageUrl, piece.imageAlt, piece.link]
+  );
 
   const step = useCallback(
     (direction: 1 | -1) => {
@@ -58,6 +78,26 @@ export default function CollectionProductCard({
           aria-label={piece.title}
           className="absolute inset-0 z-10"
         />
+
+        {/* Cœur — liste de souhaits */}
+        <button
+          type="button"
+          onClick={handleToggleWishlist}
+          aria-label={wishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          aria-pressed={wishlisted}
+          className={[
+            'absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full backdrop-blur-sm transition-colors',
+            wishlisted
+              ? 'bg-amber-500 text-black'
+              : 'bg-white/70 text-stone-900 hover:bg-stone-900 hover:text-white',
+          ].join(' ')}
+        >
+          <Heart
+            className="h-4 w-4"
+            aria-hidden="true"
+            fill={wishlisted ? 'currentColor' : 'none'}
+          />
+        </button>
 
         {hasMultiple && (
           <>

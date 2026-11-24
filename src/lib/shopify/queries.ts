@@ -1248,3 +1248,582 @@ export async function getCollectionProducts(
   }
 }
 
+/* ============================================================================
+   Panier Storefront API — cartCreate / checkoutUrl
+   ============================================================================ */
+
+/**
+ * Mutation : création d'un panier Storefront API avec lignes de produits.
+ * Retourne l'ID du panier et l'URL de paiement (checkoutUrl).
+ */
+export const CART_CREATE_MUTATION = `
+  mutation CartCreate($input: CartInput!) {
+    cartCreate(input: $input) {
+      cart {
+        id
+        checkoutUrl
+        lines(first: 50) {
+          edges {
+            node {
+              id
+              merchandiseId
+              quantity
+            }
+          }
+        }
+      }
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+export interface CartLineInput {
+  merchandiseId: string;
+  quantity: number;
+}
+
+export interface CartCreateInput {
+  lines: CartLineInput[];
+  attributes?: Array<{ key: string; value: string }>;
+  buyerIdentity?: {
+    countryCode?: string;
+    email?: string;
+    phone?: string;
+  };
+}
+
+export interface CartCreateResponse {
+  cartCreate: {
+    cart: {
+      id: string;
+      checkoutUrl: string;
+      lines: {
+        edges: Array<{
+          node: {
+            id: string;
+            merchandiseId: string;
+            quantity: number;
+          };
+        }>;
+      } | null;
+    } | null;
+    userErrors: Array<{
+      field: string[];
+      message: string;
+      code: string;
+    }>;
+  };
+}
+
+/**
+ * Crée un panier Shopify Storefront API et retourne le checkoutUrl.
+ *
+ * @param lines - Lignes du panier (merchandiseId = variante Shopify ID, quantity)
+ * @param options - Options additionnelles (attributs, identité acheteur)
+ * @returns checkoutUrl si succès, null sinon (avec log des erreurs)
+ */
+export async function createCartAndGetCheckoutUrl(
+  lines: CartLineInput[],
+  options: { attributes?: Array<{ key: string; value: string }>; buyerIdentity?: CartCreateInput['buyerIdentity'] } = {}
+): Promise<string | null> {
+  const input: CartCreateInput = {
+    lines,
+    attributes: options.attributes,
+    buyerIdentity: options.buyerIdentity,
+  };
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CartCreate] Appel Shopify :', { linesCount: lines.length, input });
+  }
+
+  try {
+    const data = await shopifyFetch<CartCreateResponse>(CART_CREATE_MUTATION, { input });
+
+    const userErrors = data.cartCreate?.userErrors ?? [];
+    if (userErrors.length > 0) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[CartCreate] Erreurs utilisateur Shopify :', userErrors);
+      }
+      // On continue même avec des userErrors pour voir si checkoutUrl est présent
+    }
+
+    const checkoutUrl = data.cartCreate?.cart?.checkoutUrl ?? null;
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[CartCreate] Résultat :', { checkoutUrl: checkoutUrl ? 'présent' : 'absent', cartId: data.cartCreate?.cart?.id });
+    }
+
+    return checkoutUrl;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[CartCreate] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/* ============================================================================
+   Client Storefront API — customerCreate / customerAccessTokenCreate / customer
+   ============================================================================ */
+
+/**
+ * Mutation : création d'un client Shopify (customerCreate).
+ * Retourne le client créé et un accessToken pour la session.
+ */
+export const CUSTOMER_CREATE_MUTATION = `
+  mutation CustomerCreate($input: CustomerCreateInput!) {
+    customerCreate(input: $input) {
+      customer {
+        id
+        firstName
+        lastName
+        email
+        phone
+        defaultAddress {
+          city
+          country
+        }
+      }
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+/**
+ * Mutation : obtention d'un token d'accès client (customerAccessTokenCreate).
+ * Utilisé pour la connexion (login).
+ */
+export const CUSTOMER_ACCESS_TOKEN_CREATE_MUTATION = `
+  mutation CustomerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+    customerAccessTokenCreate(input: $input) {
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+/**
+ * Mutation : mise à jour du client (customerUpdate).
+ * Nécessite un accessToken valide.
+ */
+export const CUSTOMER_UPDATE_MUTATION = `
+  mutation CustomerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
+    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
+      customer {
+        id
+        firstName
+        lastName
+        email
+        phone
+        defaultAddress {
+          city
+          country
+        }
+      }
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+/**
+ * Mutation : suppression du token d'accès (customerAccessTokenDelete).
+ * Utilisé pour la déconnexion.
+ */
+export const CUSTOMER_ACCESS_TOKEN_DELETE_MUTATION = `
+  mutation CustomerAccessTokenDelete($customerAccessToken: String!) {
+    customerAccessTokenDelete(customerAccessToken: $customerAccessToken) {
+      deletedAccessToken
+      deletedCustomerAccessTokenId
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+/**
+ * Query : récupération du client connecté (customer).
+ * Nécessite un accessToken valide.
+ */
+export const CUSTOMER_QUERY = `
+  query Customer($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      id
+      firstName
+      lastName
+      email
+      phone
+      defaultAddress {
+        city
+        country
+      }
+    }
+  }
+`;
+
+/**
+ * Mutation : suppression du client (customerDelete).
+ * Note : nécessite souvent des permissions spéciales, peut ne pas être dispo en Storefront API standard.
+ * On laisse la mutation pour complétude mais l'API côté serveur gérera le fallback.
+ */
+export const CUSTOMER_DELETE_MUTATION = `
+  mutation CustomerDelete($customerAccessToken: String!) {
+    customerDelete(customerAccessToken: $customerAccessToken) {
+      deletedCustomerId
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+export interface CustomerCreateInput {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone?: string;
+  acceptsMarketing?: boolean;
+}
+
+export interface CustomerAccessTokenCreateInput {
+  email: string;
+  password: string;
+}
+
+export interface CustomerUpdateInput {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  acceptsMarketing?: boolean;
+}
+
+export interface CustomerCreateResponse {
+  customerCreate: {
+    customer: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string | null;
+      defaultAddress: {
+        city: string | null;
+        country: string | null;
+      } | null;
+    } | null;
+    customerAccessToken: {
+      accessToken: string;
+      expiresAt: string;
+    } | null;
+    userErrors: Array<{
+      field: string[];
+      message: string;
+      code: string;
+    }>;
+  };
+}
+
+export interface CustomerAccessTokenCreateResponse {
+  customerAccessTokenCreate: {
+    customerAccessToken: {
+      accessToken: string;
+      expiresAt: string;
+    } | null;
+    customerUserErrors: Array<{
+      field: string[];
+      message: string;
+      code: string;
+    }>;
+  };
+}
+
+export interface CustomerUpdateResponse {
+  customerUpdate: {
+    customer: {
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      phone: string | null;
+      defaultAddress: {
+        city: string | null;
+        country: string | null;
+      } | null;
+    } | null;
+    customerUserErrors: Array<{
+      field: string[];
+      message: string;
+      code: string;
+    }>;
+  };
+}
+
+export interface CustomerQueryResponse {
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string | null;
+    defaultAddress: {
+      city: string | null;
+      country: string | null;
+    } | null;
+  } | null;
+}
+
+export interface CustomerDeleteResponse {
+  customerDelete: {
+    deletedCustomerId: string | null;
+    userErrors: Array<{
+      field: string[];
+      message: string;
+      code: string;
+    }>;
+  };
+}
+
+/**
+ * Crée un client Shopify et retourne l'accessToken.
+ */
+export async function createCustomer(
+  input: CustomerCreateInput
+): Promise<{ accessToken: string; customerId: string; errors?: string[] } | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CustomerCreate] Appel Shopify :', { email: input.email });
+  }
+
+  try {
+    const data = await shopifyFetch<CustomerCreateResponse>(CUSTOMER_CREATE_MUTATION, { input });
+
+    const userErrors = data.customerCreate?.userErrors ?? [];
+    if (userErrors.length > 0) {
+      const messages = userErrors.map((e) => e.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[CustomerCreate] Erreurs Shopify :', messages);
+      }
+      return { accessToken: '', customerId: '', errors: messages };
+    }
+
+    const accessToken = data.customerCreate?.customerAccessToken?.accessToken ?? null;
+    const customerId = data.customerCreate?.customer?.id ?? null;
+
+    if (!accessToken || !customerId) {
+      return { accessToken: '', customerId: '', errors: ['Aucun token ou ID client retourné.'] };
+    }
+
+    return { accessToken, customerId };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[CustomerCreate] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/**
+ * Obtient un accessToken pour un client existant (login).
+ */
+export async function createCustomerAccessToken(
+  email: string,
+  password: string
+): Promise<{ accessToken: string; expiresAt: string; errors?: string[] } | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CustomerAccessTokenCreate] Appel Shopify :', { email });
+  }
+
+  try {
+    const data = await shopifyFetch<CustomerAccessTokenCreateResponse>(CUSTOMER_ACCESS_TOKEN_CREATE_MUTATION, {
+      input: { email, password },
+    });
+
+    const errors = data.customerAccessTokenCreate?.customerUserErrors ?? [];
+    if (errors.length > 0) {
+      const messages = errors.map((e) => e.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[CustomerAccessTokenCreate] Erreurs Shopify :', messages);
+      }
+      return { accessToken: '', expiresAt: '', errors: messages };
+    }
+
+    const accessToken = data.customerAccessTokenCreate?.customerAccessToken?.accessToken ?? null;
+    const expiresAt = data.customerAccessTokenCreate?.customerAccessToken?.expiresAt ?? null;
+
+    if (!accessToken) {
+      return { accessToken: '', expiresAt: '', errors: ['Aucun token retourné.'] };
+    }
+
+    return { accessToken, expiresAt: expiresAt ?? '' };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[CustomerAccessTokenCreate] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/**
+ * Récupère les infos du client connecté via son accessToken.
+ */
+export async function getCustomer(
+  accessToken: string
+): Promise<CustomerQueryResponse['customer'] | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Customer] Appel Shopify :', { hasToken: Boolean(accessToken) });
+  }
+
+  try {
+    const data = await shopifyFetch<CustomerQueryResponse>(CUSTOMER_QUERY, { customerAccessToken: accessToken });
+    return data.customer ?? null;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Customer] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/**
+ * Met à jour le profil client via son accessToken.
+ */
+export async function updateCustomer(
+  accessToken: string,
+  customer: CustomerUpdateInput
+): Promise<{ customer: CustomerUpdateResponse['customerUpdate']['customer']; errors?: string[] } | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CustomerUpdate] Appel Shopify :', { hasToken: Boolean(accessToken), customer });
+  }
+
+  try {
+    const data = await shopifyFetch<CustomerUpdateResponse>(CUSTOMER_UPDATE_MUTATION, {
+      customerAccessToken: accessToken,
+      customer,
+    });
+
+    const errors = data.customerUpdate?.customerUserErrors ?? [];
+    if (errors.length > 0) {
+      const messages = errors.map((e) => e.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[CustomerUpdate] Erreurs Shopify :', messages);
+      }
+      return { customer: null, errors: messages };
+    }
+
+    return { customer: data.customerUpdate?.customer ?? null };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[CustomerUpdate] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/**
+ * Supprime l'accessToken (logout).
+ */
+export async function deleteCustomerAccessToken(
+  accessToken: string
+): Promise<{ success: boolean; errors?: string[] } | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CustomerAccessTokenDelete] Appel Shopify :', { hasToken: Boolean(accessToken) });
+  }
+
+  try {
+    const data = await shopifyFetch<{ customerAccessTokenDelete: { deletedAccessToken: string | null; userErrors: Array<{ field: string[]; message: string; code: string }> } }>(
+      CUSTOMER_ACCESS_TOKEN_DELETE_MUTATION,
+      { customerAccessToken: accessToken }
+    );
+
+    const errors = data.customerAccessTokenDelete?.userErrors ?? [];
+    if (errors.length > 0) {
+      const messages = errors.map((e) => e.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[CustomerAccessTokenDelete] Erreurs Shopify :', messages);
+      }
+      return { success: false, errors: messages };
+    }
+
+    return { success: Boolean(data.customerAccessTokenDelete?.deletedAccessToken) };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[CustomerAccessTokenDelete] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+
+/**
+ * Supprime le client (si supporté par la config Shopify).
+ */
+export async function deleteCustomer(
+  accessToken: string
+): Promise<{ success: boolean; errors?: string[] } | null> {
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[CustomerDelete] Appel Shopify :', { hasToken: Boolean(accessToken) });
+  }
+
+  try {
+    const data = await shopifyFetch<CustomerDeleteResponse>(CUSTOMER_DELETE_MUTATION, {
+      customerAccessToken: accessToken,
+    });
+
+    const errors = data.customerDelete?.userErrors ?? [];
+    if (errors.length > 0) {
+      const messages = errors.map((e) => e.message);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[CustomerDelete] Erreurs Shopify :', messages);
+      }
+      return { success: false, errors: messages };
+    }
+
+    return { success: Boolean(data.customerDelete?.deletedCustomerId) };
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[CustomerDelete] Échec Shopify Storefront API :', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return null;
+  }
+}
+

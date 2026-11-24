@@ -1,12 +1,16 @@
 /** @file
- * OXBride Atelier — Page « L'Atelier » (Neo-Luxe).
+ * OXBride Atelier — Page « L'Atelier » (Neo-Luxe Lumineux).
  * Vitrine du savoir-faire, des matières d'exception et de l'histoire de la
  * maison. Dialogue créatif Paris ↔ Abomey-Calavi.
  * Route : /latelier
  *
- * Conventions :
- * - Fond champagne poudré `bg-[#F9F8F6]`, typo Serif, espacements aérés.
- * - Toutes les icônes SVG ont une taille explicite (`w-4 h-4` / `w-5 h-5`).
+ * Conventions (palette lumineuse & nuancée) :
+ * - Fond principal champagne `bg-[#F9F8F6]`
+ * - Nuances alternatives : sable chaud `bg-[#F2ECE4]`, ivoire `bg-[#FAF7F3]`,
+ *   pierre chaude `bg-[#EFEAE4]`
+ * - Cartes : `bg-white/90` ou `bg-[#FAF7F3]` avec bordures `border-stone-200/80`
+ * - Accents dorés/sable `text-[#9A7B5B]` / `border-[#C8B094]`
+ * - Typo Serif, icônes `w-4 h-4` / `w-5 h-5`
  */
 
 import Link from 'next/link';
@@ -144,11 +148,11 @@ export default function LatelierPage() {
   return (
     <main className="min-h-screen bg-[#F9F8F6] text-stone-900">
       {/* ================================================================
-          Hero — L'Atelier
+          Hero — L'Atelier (Champagne)
           ================================================================ */}
-      <section className="relative overflow-hidden border-b border-stone-200/80">
+      <section className="relative overflow-hidden border-b border-stone-200/80 bg-[#F9F8F6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40 text-center">
-          <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans mb-6">
+          <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans mb-6">
             Notre Maison
           </span>
           <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-bold leading-[1] tracking-tight text-stone-900 mb-8">
@@ -169,7 +173,7 @@ export default function LatelierPage() {
             </Link>
             <Link
               href="#piliers"
-              className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-stone-100 transition-colors"
+              className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-[#F2ECE4] transition-colors"
             >
               Découvrir le savoir-faire
             </Link>
@@ -178,13 +182,13 @@ export default function LatelierPage() {
       </section>
 
       {/* ================================================================
-          Histoire & Philosophie
+          Histoire & Philosophie (Champagne)
           ================================================================ */}
-      <section id="histoire" className="py-20 lg:py-32">
+      <section id="histoire" className="py-20 lg:py-32 bg-[#F9F8F6]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             <div>
-              <span className="block text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans mb-4">
+              <span className="block text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans mb-4">
                 Notre Histoire
               </span>
               <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-stone-900 mb-8">
@@ -216,7 +220,7 @@ export default function LatelierPage() {
               </div>
             </div>
 
-            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-stone-200/80 bg-stone-100/40">
+            <div className="relative aspect-[4/5] rounded-3xl overflow-hidden border border-stone-200/80 bg-[#FAF7F3]">
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="font-serif text-6xl text-stone-300/60 select-none" aria-hidden="true">
                   AD
@@ -228,7 +232,7 @@ export default function LatelierPage() {
           {/* Dialogue Paris ↔ Bénin */}
           <div className="mt-20 lg:mt-32 grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 items-center">
             <div className="text-center md:text-right">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans block mb-2">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans block mb-2">
                 Paris
               </span>
               <h3 className="font-serif text-2xl font-bold text-stone-900 mb-2">
@@ -241,13 +245,13 @@ export default function LatelierPage() {
             </div>
 
             <div className="flex items-center justify-center">
-              <div className="relative w-16 h-px bg-stone-300">
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-stone-400 bg-[#F9F8F6]" />
+              <div className="relative w-16 h-px bg-stone-200/60">
+                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full border border-stone-300 bg-[#F9F8F6]" />
               </div>
             </div>
 
             <div className="text-center md:text-left">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans block mb-2">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans block mb-2">
                 Abomey-Calavi
               </span>
               <h3 className="font-serif text-2xl font-bold text-stone-900 mb-2">
@@ -263,15 +267,15 @@ export default function LatelierPage() {
       </section>
 
       {/* ================================================================
-          Les 4 Piliers du Savoir-Faire
+          Les 4 Piliers du Savoir-Faire (Pierre chaude profonde — alternative chaude au noir)
           ================================================================ */}
       <section
         id="piliers"
-        className="bg-stone-900 text-stone-100 py-20 lg:py-32"
+        className="bg-[#2D2825] text-stone-100 py-20 lg:py-32"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-24">
-            <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-[#D9C7B8]/80 font-sans mb-4">
+            <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-[#C8B094]/80 font-sans mb-4">
               Savoir-Faire
             </span>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight">
@@ -287,16 +291,16 @@ export default function LatelierPage() {
             {piliers.map((pilier) => (
               <article
                 key={pilier.number}
-                className="group relative p-8 bg-stone-950/50 rounded-2xl border border-stone-800/60 hover:border-[#D9C7B8]/30 transition-all duration-500"
+                className="group relative p-8 bg-[#1F1B19] rounded-2xl border border-[#3D3530]/60 hover:border-[#C8B094]/30 transition-all duration-500"
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-stone-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#2D2825]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
                 <div className="relative z-10 space-y-5">
                   <div className="flex items-center justify-between">
-                    <span className="font-serif text-2xl font-bold text-[#D9C7B8]/40 group-hover:text-[#D9C7B8] transition-colors">
+                    <span className="font-serif text-2xl font-bold text-[#C8B094]/40 group-hover:text-[#C8B094] transition-colors">
                       {pilier.number}
                     </span>
                     <pilier.icon
-                      className="w-5 h-5 shrink-0 text-[#D9C7B8]/60 group-hover:text-[#D9C7B8] transition-colors"
+                      className="w-5 h-5 shrink-0 text-[#C8B094]/60 group-hover:text-[#C8B094] transition-colors"
                       aria-hidden="true"
                     />
                   </div>
@@ -314,12 +318,12 @@ export default function LatelierPage() {
       </section>
 
       {/* ================================================================
-          Matières d'Exception
+          Matières d'Exception (Sable chaud)
           ================================================================ */}
-      <section id="matieres" className="py-20 lg:py-32">
+      <section id="matieres" className="py-20 lg:py-32 bg-[#F2ECE4]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-24">
-            <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans mb-4">
+            <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans mb-4">
               Matières
             </span>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-stone-900 mb-6">
@@ -335,18 +339,18 @@ export default function LatelierPage() {
             {matieres.map((matiere) => (
               <article
                 key={matiere.name}
-                className="group relative rounded-2xl border border-stone-200/80 bg-white/60 p-8 hover:border-amber-300/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all duration-500"
+                className="group relative rounded-2xl border border-stone-200/80 bg-white/90 p-8 hover:border-[#C8B094]/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] transition-all duration-500"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
                     <h3 className="font-serif text-lg font-bold text-stone-900">
                       {matiere.name}
                     </h3>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-amber-700/90 font-sans mt-1">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#9A7B5B] font-sans mt-1">
                       {matiere.origin}
                     </p>
                   </div>
-                  <span className="shrink-0 text-[10px] uppercase tracking-[0.1em] font-sans px-2 py-1 rounded-full bg-stone-100 text-stone-600 group-hover:bg-amber-50 group-hover:text-amber-700 transition-colors">
+                  <span className="shrink-0 text-[10px] uppercase tracking-[0.1em] font-sans px-2 py-1 rounded-full bg-stone-100 text-stone-600 group-hover:bg-[#9A7B5B]/10 group-hover:text-[#9A7B5B] transition-colors">
                     {matiere.tag}
                   </span>
                 </div>
@@ -360,12 +364,12 @@ export default function LatelierPage() {
       </section>
 
       {/* ================================================================
-          Les Deux Lieux & Appel à l'Action
+          Les Deux Lieux & Appel à l'Action (Ivoire)
           ================================================================ */}
-      <section className="bg-stone-100/50 py-20 lg:py-32">
+      <section className="bg-[#FAF7F3] py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 lg:mb-24">
-            <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-amber-700/90 font-sans mb-4">
+            <span className="inline-block text-[10px] uppercase tracking-[0.3em] text-[#9A7B5B] font-sans mb-4">
               Nos Lieux
             </span>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.1] tracking-tight text-stone-900 mb-6">
@@ -377,11 +381,11 @@ export default function LatelierPage() {
             {lieux.map((lieu) => (
               <article
                 key={lieu.city}
-                className="relative rounded-3xl overflow-hidden border border-stone-200/80 bg-white/60 p-8 lg:p-10"
+                className="relative rounded-3xl overflow-hidden border border-stone-200/80 bg-white/90 p-8 lg:p-10"
               >
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-4 h-4 shrink-0 text-amber-700" aria-hidden="true" />
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-amber-700/90 font-sans">
+                  <MapPin className="w-4 h-4 shrink-0 text-[#9A7B5B]" aria-hidden="true" />
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-[#9A7B5B] font-sans">
                     {lieu.city}
                   </span>
                 </div>
@@ -399,7 +403,7 @@ export default function LatelierPage() {
                 </address>
                 <Link
                   href={lieu.href}
-                  className="inline-flex items-center gap-2 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:text-amber-700 transition-colors"
+                  className="inline-flex items-center gap-2 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:text-[#9A7B5B] transition-colors"
                 >
                   {lieu.cta}
                   <ArrowRight className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -428,7 +432,7 @@ export default function LatelierPage() {
               </Link>
               <Link
                 href="/collections"
-                className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-stone-100 transition-colors"
+                className="inline-flex items-center gap-2 rounded-none border border-stone-300 bg-transparent py-4 px-8 text-sm font-sans uppercase tracking-[0.1em] text-stone-900 hover:border-stone-900 hover:bg-[#F2ECE4] transition-colors"
               >
                 Voir les collections
               </Link>

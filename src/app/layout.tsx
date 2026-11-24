@@ -1,5 +1,10 @@
 import Header from "@/components/navigation/Header";
 import Footer from "@/components/layout/Footer";
+import { CartProvider } from "@/components/cart/CartProvider";
+import { WishlistProvider } from "@/components/wishlist/WishlistProvider";
+import { AccountProvider } from "@/components/account/AccountProvider";
+import CartDrawer from "@/components/cart/CartDrawer";
+import WishlistDrawer from "@/components/wishlist/WishlistDrawer";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -21,16 +26,24 @@ export default function RootLayout({
   return (
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-screen flex flex-col bg-background text-foreground antialiased">
-        {/* Le Header global avec le méga-menu */}
-        <Header />
-        
-        {/* Contenu de la page */}
-        <div className="flex-1">
-          {children}
-        </div>
-        
-        {/* Pied de page global */}
-        <Footer />
+        <CartProvider>
+          <WishlistProvider>
+            <AccountProvider>
+              {/* Le Header global avec le méga-menu */}
+              <Header />
+
+              {/* Contenu de la page */}
+              <div className="flex-1">{children}</div>
+
+              {/* Pied de page global */}
+              <Footer />
+
+              {/* Tiroirs panier & liste de souhaits */}
+              <CartDrawer />
+              <WishlistDrawer />
+            </AccountProvider>
+          </WishlistProvider>
+        </CartProvider>
       </body>
     </html>
   );

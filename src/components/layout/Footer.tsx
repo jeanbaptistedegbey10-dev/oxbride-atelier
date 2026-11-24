@@ -1,9 +1,9 @@
 /** @file
- * OXBride Atelier — Pied de page global (Neo-Luxe).
- * Fond sombre (`#1A1D24`) avec accents sable/or rosé (`#D9C7B8`) et champagne
- * poudré (`#EBE5DF`). 3 colonnes : identité + newsletter, collections, maison &
- * salons. Barre inférieure : réseaux sociaux, mentions légales, année dynamique,
- * retour en haut.
+ * OXBride Atelier — Pied de page global (Neo-Luxe Lumineux).
+ * Fond sable/champagne soutenu `bg-[#EFEAE4]` avec accents dorés/sable
+ * `text-[#9A7B5B]` / `border-[#C8B094]`, textes `text-stone-800` / `text-stone-600`.
+ * 3 colonnes : Identité + Newsletter | Collections | La Maison & Salons.
+ * Barre inférieure : réseaux sociaux, mentions légales, année dynamique, retour en haut.
  *
  * Règle stricte : **toutes les icônes SVG doivent avoir une taille fixe**
  * (`w-4 h-4` ou `w-5 h-5`).
@@ -38,6 +38,7 @@ const collections = [
 
 const maisonLinks = [
   { label: 'L\'Atelier', href: '/latelier' },
+  { label: 'Sur-Mesure', href: '/sur-mesure' },
   { label: 'Rendez-vous & Salons Privés', href: '/rendez-vous' },
   { label: 'Savoir-Faire', href: '/latelier#savoir-faire' },
   { label: 'Matières d\'Exception', href: '/latelier#matieres' },
@@ -108,7 +109,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#1A1D24] text-[#EBE5DF]" role="contentinfo">
+    <footer className="bg-[#EFEAE4] text-stone-800 border-t border-stone-200" role="contentinfo">
       {/* ================================================================
           Section principale — 3 colonnes
           ================================================================ */}
@@ -117,10 +118,10 @@ export default function Footer() {
           {/* ---------- Colonne 1 : Identité & Newsletter ---------- */}
           <div className="space-y-8">
             <div>
-              <h2 className="font-serif text-2xl lg:text-3xl font-bold text-[#EBE5DF] mb-4">
+              <h2 className="font-serif text-2xl lg:text-3xl font-bold text-stone-900 mb-4">
                 OXBride Atelier
               </h2>
-              <p className="text-sm leading-relaxed text-[#EBE5DF]/70 max-w-sm">
+              <p className="text-sm leading-relaxed text-stone-600 max-w-sm">
                 Maison de haute couture nuptiale fondée sur l'exigence du geste
                 parfait. Chaque pièce est une œuvre unique, née du dialogue entre
                 la matière et l'intention.
@@ -128,18 +129,18 @@ export default function Footer() {
             </div>
 
             {/* Newsletter */}
-            <div className="border-t border-[#D9C7B8]/20 pt-8">
-              <h3 className="font-serif text-lg font-medium text-[#EBE5DF] mb-3">
+            <div className="border-t border-stone-200/60 pt-8">
+              <h3 className="font-serif text-lg font-medium text-stone-900 mb-3">
                 Lettre de l'Atelier
               </h3>
-              <p className="text-xs leading-relaxed text-[#EBE5DF]/60 mb-4 max-w-xs">
+              <p className="text-xs leading-relaxed text-stone-500 mb-4 max-w-xs">
                 Inspirations, coulisses d'atelier et avant-premières collections.
                 Une lettre par mois, jamais plus.
               </p>
 
               {newsletterStatus === 'success' ? (
                 <div
-                  className="flex items-center gap-2 text-sm text-[#D9C7B8]"
+                  className="flex items-center gap-2 text-sm text-[#9A7B5B]"
                   role="status"
                   aria-live="polite"
                 >
@@ -164,29 +165,29 @@ export default function Footer() {
                     placeholder="votre@email.com"
                     required
                     disabled={newsletterStatus === 'loading'}
-                    className="flex-1 rounded-none border border-[#D9C7B8]/30 bg-transparent py-3 px-4 text-sm text-[#EBE5DF] placeholder:text-[#EBE5DF]/40 focus:border-[#D9C7B8] focus:outline-none transition-colors disabled:opacity-50"
+                    className="flex-1 rounded-none border border-stone-300/50 bg-white/50 py-3 px-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-[#9A7B5B] focus:outline-none transition-colors disabled:opacity-50"
                   />
                   <button
                     type="submit"
                     disabled={newsletterStatus === 'loading'}
-                    className="whitespace-nowrap rounded-none border border-[#D9C7B8]/30 bg-transparent py-3 px-6 text-xs font-sans uppercase tracking-[0.15em] text-[#D9C7B8] hover:border-[#D9C7B8] hover:bg-[#D9C7B8]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="whitespace-nowrap rounded-none border border-stone-300/50 bg-transparent py-3 px-6 text-xs font-sans uppercase tracking-[0.15em] text-stone-700 hover:border-[#9A7B5B] hover:bg-[#9A7B5B]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {newsletterStatus === 'loading' ? '...' : 'S\'inscrire'}
+                    {newsletterStatus === 'loading' ? '...' : "S'inscrire"}
                   </button>
                 </form>
               )}
 
               {newsletterStatus === 'error' && (
-                <p className="mt-2 text-xs text-red-400" role="alert">
+                <p className="mt-2 text-xs text-red-500" role="alert">
                   Une erreur est survenue. Veuillez réessayer.
                 </p>
               )}
 
-              <p className="mt-3 text-[10px] text-[#EBE5DF]/40 font-sans">
+              <p className="mt-3 text-[10px] text-stone-400 font-sans">
                 En vous inscrivant, vous acceptez notre{' '}
                 <Link
                   href="/mentions-legales"
-                  className="underline hover:text-[#D9C7B8] transition-colors"
+                  className="underline hover:text-[#9A7B5B] transition-colors"
                 >
                   politique de confidentialité
                 </Link>
@@ -197,7 +198,7 @@ export default function Footer() {
 
           {/* ---------- Colonne 2 : Collections ---------- */}
           <nav aria-label="Collections">
-            <h2 className="font-serif text-lg font-medium text-[#EBE5DF] mb-5">
+            <h2 className="font-serif text-lg font-medium text-stone-900 mb-5">
               Collections
             </h2>
             <ul className="space-y-3" role="list">
@@ -205,10 +206,10 @@ export default function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="group flex items-center gap-2 text-sm text-[#EBE5DF]/70 hover:text-[#D9C7B8] transition-colors"
+                    className="group flex items-center gap-2 text-sm text-stone-600 hover:text-[#9A7B5B] transition-colors"
                   >
                     <span
-                      className="h-px w-4 shrink-0 bg-[#D9C7B8]/30 group-hover:bg-[#D9C7B8] transition-colors"
+                      className="h-px w-4 shrink-0 bg-stone-300/50 group-hover:bg-[#9A7B5B] transition-colors"
                       aria-hidden="true"
                     />
                     <span>{item.label}</span>
@@ -221,7 +222,7 @@ export default function Footer() {
           {/* ---------- Colonne 3 : La Maison & Salons ---------- */}
           <div className="space-y-8">
             <nav aria-label="La Maison">
-              <h2 className="font-serif text-lg font-medium text-[#EBE5DF] mb-5">
+              <h2 className="font-serif text-lg font-medium text-stone-900 mb-5">
                 La Maison
               </h2>
               <ul className="space-y-3" role="list">
@@ -229,10 +230,10 @@ export default function Footer() {
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className="group flex items-center gap-2 text-sm text-[#EBE5DF]/70 hover:text-[#D9C7B8] transition-colors"
+                      className="group flex items-center gap-2 text-sm text-stone-600 hover:text-[#9A7B5B] transition-colors"
                     >
                       <span
-                        className="h-px w-4 shrink-0 bg-[#D9C7B8]/30 group-hover:bg-[#D9C7B8] transition-colors"
+                        className="h-px w-4 shrink-0 bg-stone-300/50 group-hover:bg-[#9A7B5B] transition-colors"
                         aria-hidden="true"
                       />
                       <span>{item.label}</span>
@@ -243,32 +244,32 @@ export default function Footer() {
             </nav>
 
             {/* Salons / Coordonnées */}
-            <div className="border-t border-[#D9C7B8]/20 pt-8">
-              <h3 className="font-serif text-lg font-medium text-[#EBE5DF] mb-5">
+            <div className="border-t border-stone-200/60 pt-8">
+              <h3 className="font-serif text-lg font-medium text-stone-900 mb-5">
                 Salons & Ateliers
               </h3>
               <div className="space-y-6">
                 {salons.map((salon) => (
                   <div key={salon.city} className="space-y-2">
-                    <h4 className="text-xs uppercase tracking-[0.2em] font-sans text-[#D9C7B8]/80">
+                    <h4 className="text-xs uppercase tracking-[0.2em] font-sans text-[#9A7B5B]/80">
                       {salon.city}
                     </h4>
-                    <address className="not-italic text-xs text-[#EBE5DF]/60 space-y-1 leading-relaxed">
+                    <address className="not-italic text-xs text-stone-500 space-y-1 leading-relaxed">
                       <div className="flex items-start gap-2">
-                        <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-[#D9C7B8]/60" aria-hidden="true" />
+                        <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-stone-400" aria-hidden="true" />
                         <span>{salon.address}</span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Phone className="w-3 h-3 mt-0.5 shrink-0 text-[#D9C7B8]/60" aria-hidden="true" />
+                        <Phone className="w-3 h-3 mt-0.5 shrink-0 text-stone-400" aria-hidden="true" />
                         <a
                           href={`tel:${salon.phone.replace(/\s/g, '')}`}
-                          className="hover:text-[#D9C7B8] transition-colors"
+                          className="hover:text-[#9A7B5B] transition-colors"
                         >
                           {salon.phone}
                         </a>
                       </div>
                       <div className="flex items-start gap-2">
-                        <Clock className="w-3 h-3 mt-0.5 shrink-0 text-[#D9C7B8]/60" aria-hidden="true" />
+                        <Clock className="w-3 h-3 mt-0.5 shrink-0 text-stone-400" aria-hidden="true" />
                         <span>{salon.hours}</span>
                       </div>
                     </address>
@@ -277,7 +278,7 @@ export default function Footer() {
               </div>
               <Link
                 href="/rendez-vous"
-                className="mt-6 inline-flex items-center gap-2 text-xs font-sans uppercase tracking-[0.15em] text-[#D9C7B8] hover:text-[#EBE5DF] transition-colors"
+                className="mt-6 inline-flex items-center gap-2 text-xs font-sans uppercase tracking-[0.15em] text-[#9A7B5B] hover:text-stone-900 transition-colors"
               >
                 <Mail className="w-4 h-4 shrink-0" aria-hidden="true" />
                 <span>Prendre rendez-vous</span>
@@ -290,15 +291,15 @@ export default function Footer() {
       {/* ================================================================
           Barre inférieure
           ================================================================ */}
-      <div className="border-t border-[#D9C7B8]/20">
+      <div className="border-t border-stone-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {/* Copyright + mentions */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <p className="text-xs text-[#EBE5DF]/50 font-sans">
+              <p className="text-xs text-stone-400 font-sans">
                 © {currentYear} OXBride Atelier. Tous droits réservés.
               </p>
-              <span className="hidden sm:block text-[#D9C7B8]/30" aria-hidden="true">
+              <span className="hidden sm:block text-stone-300" aria-hidden="true">
                 ·
               </span>
               <nav aria-label="Mentions légales">
@@ -307,12 +308,12 @@ export default function Footer() {
                     <li key={link.href} className="flex items-center gap-3">
                       <Link
                         href={link.href}
-                        className="text-xs text-[#EBE5DF]/50 hover:text-[#D9C7B8] transition-colors"
+                        className="text-xs text-stone-500 hover:text-[#9A7B5B] transition-colors"
                       >
                         {link.label}
                       </Link>
                       {i < legalLinks.length - 1 && (
-                        <span className="text-[#D9C7B8]/20" aria-hidden="true">
+                        <span className="text-stone-300" aria-hidden="true">
                           ·
                         </span>
                       )}
@@ -332,7 +333,7 @@ export default function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-[#D9C7B8]/30 text-[#EBE5DF]/60 hover:border-[#D9C7B8] hover:text-[#D9C7B8] transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-300/50 text-stone-600 hover:border-[#9A7B5B] hover:text-[#9A7B5B] transition-colors"
                     >
                       <social.icon className="w-4 h-4 shrink-0" aria-hidden="true" />
                     </a>
@@ -344,7 +345,7 @@ export default function Footer() {
                 type="button"
                 onClick={scrollToTop}
                 aria-label="Retour en haut de page"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-[#D9C7B8]/30 text-[#EBE5DF]/60 hover:border-[#D9C7B8] hover:text-[#D9C7B8] transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-300/50 text-stone-600 hover:border-[#9A7B5B] hover:text-[#9A7B5B] transition-colors"
               >
                 <ArrowUp className="w-4 h-4 shrink-0" aria-hidden="true" />
               </button>

@@ -1,13 +1,15 @@
 /** @file
- * OXBride Atelier — Vue de collection unifiée (Neo-Luxe).
+ * OXBride Atelier — Vue de collection unifiée (Neo-Luxe Lumineux).
  * Composant serveur partagé par `/collections` (catalogue complet) et
  * `/collections/[handle]` (collection ciblée).
  *
  * - Bannière de collection (fil d'Ariane, eyebrow doré, titre serif,
- *   description, visuel optionnel).
- * - Layout asymétrique : filtre latéral collant à gauche + zone principale.
+ *   description, visuel optionnel) — fond champagne `bg-[#F9F8F6]`.
+ * - Layout asymétrique : filtre latéral collant à gauche + zone principale — fond sable chaud `bg-[#F2ECE4]`.
  * - Zone principale : recherche + grille stricte de 3 colonnes.
  * - Filtres basés sur les collections Shopify (catégories + sous-catégories).
+ *
+ * Palette : accents dorés/sable `text-[#9A7B5B]` / `border-[#C8B094]`.
  */
 
 import Image from 'next/image';
@@ -101,7 +103,7 @@ export default function CollectionView({
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-end">
             <div className="lg:col-span-7">
-              <span className="block text-[10px] uppercase tracking-widest text-amber-700/90 font-sans font-medium mb-3">
+              <span className="block text-[10px] uppercase tracking-widest text-[#9A7B5B] font-sans font-medium mb-3">
                 {isAll ? 'Le Catalogue' : 'Collection'}
               </span>
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-bold leading-[1] tracking-tight text-stone-900">
@@ -143,7 +145,7 @@ export default function CollectionView({
       {/* =======================================================================
           Filtres latéraux + grille 3 colonnes
           ======================================================================= */}
-      <section className="bg-[#F9F8F6]">
+      <section className="bg-[#F2ECE4] border-t border-stone-200/70">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-10 lg:gap-12 items-start">
             {/* Colonne gauche — filtres (sticky desktop) */}

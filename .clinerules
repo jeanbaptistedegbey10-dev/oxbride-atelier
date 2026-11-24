@@ -23,8 +23,14 @@
 - Animations fluides avec Framer Motion.
 - Typage TypeScript strict pour la Storefront API Shopify et les Metaobjects `atelier_experience`.
 
-## Design « Neo-Luxe » (référence visuelle)
-- Fond champagne perle : `#F9F8F6` (toutes les pages produit/collection).
+## Design « Neo-Luxe Lumineux » (référence visuelle)
+- **Palette lumineuse & nuancée** (remplace l'ancien fond sombre) :
+  - Fond principal champagne : `#F9F8F6`
+  - Sable chaud : `#F2ECE4`
+  - Ivoire : `#FAF7F3`
+  - Pierre : `#EFEAE4` (Footer, zones de transition)
+  - Profond chaud (piliers, accents forts) : `#2D2825`
+  - Accents dorés/sable : `#9A7B5B` (principal) / `#C8B094` (secondaire/hover)
 - Titres : serif éditorial (Times New Roman, fallback serif), graisse bold, `tracking-tight`.
 - Cartes : ombres douces (`shadow-[0_10px_30px_rgba(0,0,0,0.04)]` → `hover` renforcée), zoom image au survol (`group-hover:scale-105`), coins arrondis `rounded-3xl` / `rounded-2xl`.
 - Fichier de référence du système visuel : `design.md`.
@@ -46,13 +52,14 @@
   - `/collections` (index) → catalogue complet (handle virtuel `all`, `getProducts`). Aucune erreur 404 sur l'accès direct.
   - `/collections/[handle]` → handle `all` = catalogue complet ; sinon collection ciblée (`getCollectionProducts`).
 - Layout **asymétrique** : `grid lg:grid-cols-[260px_1fr]`
-  - Gauche : `CollectionFilters` (client) **sticky** (`lg:sticky lg:top-24`), fond `#F9F8F6`, bordures fines, panneau blanc translucide.
+  - Gauche : `CollectionFilters` (client) **sticky** (`lg:sticky lg:top-24`), fond `bg-[#F2ECE4]` (sable chaud), bordures fines, panneau blanc translucide `bg-white/90`.
   - Droite : `CollectionToolbar` (recherche + compteur) + grille **stricte 3 colonnes** (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`).
 - `CollectionFilters` (client) : filtres basés sur les **collections Shopify réelles** (excluant 'lookbook') :
   - **Catégories principales** (ex: "Femme / Mariée", "Homme / Costumes", "Alliances & Joaillerie", "Ensembles Couple", "Cortège") — cases à cocher, sélection multiple.
   - **Sous-catégories** (enfants) dans accordéon (ex: "Classique Royale", "Édition Contemporaine", "Silhouette Sirène & Dentelle" sous "Femme / Mariée").
   - **Tri** : `Notre sélection`, `Prix ↑/↓`, `Nouveautés`, `Nom A→Z/Z→A`.
   - URL partageable/indexable : `?category=...&subcategory=...&sort=...&q=...` (multi-valeurs via `,`).
+  - Accents dorés/sable `#9A7B5B` / `#C8B094` pour éléments sélectionnés et interactions.
 - `collectionUtils.ts` (serveur, partagé) : `buildCollectionFilterGroups`, `filterCollectionBySelection`, `parseCollectionSelection`, `hasActiveCollectionFilters`, `sortCollectionPieces`, `COLLECTION_SORT_OPTIONS`, `ALL_COLLECTION_HANDLE`.
 - Hiérarchie inférée par nommage : titre contenant " / " = catégorie principale ; sous-collections = titre commençant par le parent.
 - Filtrage collections + tri **côté serveur** dans `CollectionView`.
@@ -64,8 +71,8 @@
 - Ne jamais introduire de `absolute` pour la colonne de miniatures (cf. bug de chevauchement corrigé).
 
 ## Architecture — Footer global (`src/components/layout/Footer.tsx`)
-- **Client component** (`'use client'`) : newsletter interactive + retour en haut + année dynamique via `useEffect`.
-- **Fond sombre** : `bg-[#1A1D24]` avec accents sable/or rosé (`#D9C7B8`) et champagne poudré (`#EBE5DF`).
+- **Client Component** (`'use client'`) : newsletter interactive + retour en haut + année dynamique via `useEffect`.
+- **Fond lumineux** : `bg-[#EFEAE4]` (pierre) avec accents dorés/sable (`#9A7B5B` / `#C8B094`) et champagne poudré (`#F9F8F6`).
 - **3 colonnes** : Identité + Newsletter | Collections | La Maison & Salons.
 - **Barre inférieure** : réseaux sociaux (icônes SVG), mentions légales, copyright dynamique, bouton retour en haut.
 - **Intégration** : `<Footer />` ajouté dans `src/app/layout.tsx` (sous `{children}`, après `</div>`).
@@ -80,6 +87,7 @@
 - **Navigation** (`Header.tsx` + `Footer.tsx`) : chaque `href` interne DOIT correspondre à une route existante. Routes valides actuelles :
   - `/` (accueil), `/collections`, `/collections/[handle]` (dynamique, jamais 404 : état vide élégant), `/products/[handle]`
   - `/latelier` (+ alias `/atelier`), `/sur-mesure`, `/rendez-vous`
+  - `/wishlist` (liste de souhaits dédiée), `/compte` (espace compte complet)
   - Pages légales : `/mentions-legales`, `/politique-confidentialite`, `/cgv`, `/accessibilite`
 - **Vérification anti-404 obligatoire** : après toute modification du menu, du Footer, du Header ou d'un lien interne, vérifier qu'aucun `href` ne pointe vers une route inexistante. Utiliser `grep` pour lister les `href="/..."` et confirmer chaque cible.
 - Les liens vers des collections (`/collections/<handle>`) passent par la route dynamique : un handle inconnu affiche l'état vide (pas de 404).
@@ -87,6 +95,7 @@
 
 ## Architecture — Page « Rendez-vous » (`src/app/rendez-vous/page.tsx`)
 - **Client Component** (`'use client'`) : parcours de réservation interactif, état local via `useState`/`useMemo`.
+- **Palette alternée** : Hero en `bg-[#F9F8F6]` (champagne), widget en `bg-white/50`, privilèges en `bg-[#F2ECE4]` (sable), FAQ en `bg-[#FAF7F3]` (ivoire), CTA final en `bg-[#F9F8F6]`.
 - **Parcours en 3 étapes** (indicateur `StepIndicator` : Salon & Prestation → Coordonnées → Confirmation) :
   1. **Lieu** : Paris (`PAR`) ou Abomey-Calavi (`BEN`) + **prestation** (Essayage Mariée, Haute Couture Sur-Mesure, Tailoring Homme, Ensembles Couple, Ajustements).
   2. **Coordonnées** : date (préavis **48h minimum** calculé côté client via `getMinBookingDate()`, attribut `min` sur l'input), créneau, nom, courriel, téléphone, accompagnants (0–4). Bouton « Confirmer » désactivé tant que les champs requis ne sont pas remplis.
@@ -94,15 +103,153 @@
 - **Sections éditoriales** : Hero, widget de réservation, Privilèges des salons (4 cartes), FAQ courte (balises `<details>`), CTA final.
 - **Liens** : `/collections`, `/sur-mesure`, `/latelier` (cohérents avec la règle anti-404).
 - **Icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5` / `w-7 h-7`), `aria-hidden="true"` systématique.
-- **Aucune simulation API réelle** : confirmation purement locale (à brancher sur un endpoint de réservation ultérieurement).
+- **Aucune simulation API réelle** : confirmation via `POST /api/appointments` (fallback localStorage), état `isSubmitting`, gestion erreurs, affichage `dossier` retourné.
+
+## Architecture — Page « Sur-Mesure » (`src/app/sur-mesure/page.tsx`)
+- **Client Component** (`'use client'`) : contenu éditorial + modale de demande de projet.
+- **Palette alternée** : Hero en `bg-[#F9F8F6]` (champagne), 4 piliers en `bg-[#2D2825]` (profond chaud, texte blanc), matières en `bg-[#F2ECE4]` (sable), engagements en `bg-[#FAF7F3]` (ivoire), CTA final en `bg-[#F9F8F6]`.
+- **Sections** :
+  1. Hero : titre Serif, CTA double (Rendez-vous / Collections).
+  2. 4 Piliers : grille `lg:grid-cols-4`, fond `bg-[#2D2825]`, accents `#C8B094`.
+  3. Matières d'Exception : grille `lg:grid-cols-3`, cartes `bg-white/90`.
+  4. Engagements : liste avec coches `text-[#9A7B5B]`.
+  5. CTA Final : 3 boutons (Projet Sur-Mesure, Rendez-vous, L'Atelier).
+- **Modale projet Sur-Mesure** : formulaire complet (nom, email, téléphone, lieu souhaité, message) → `POST /api/quotes` (type `sur-mesure`), référence `OXB-Q-XXXX`.
+- **Icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5`), `aria-hidden="true"`.
+- **Liens** : `/rendez-vous`, `/collections`, `/latelier` (cohérents avec la règle anti-404).
 
 ## Architecture — Page « L'Atelier » (`src/app/latelier/page.tsx`)
 - **Server Component** : contenu éditorial statique, pas de `'use client'`.
+- **Palette alternée** : sections en `bg-[#F9F8F6]` (champagne), `bg-[#F2ECE4]` (sable), `bg-[#FAF7F3]` (ivoire), piliers en `bg-[#2D2825]` (profond chaud, texte blanc).
 - **Sections** :
   1. Hero : titre Serif, CTA double (Essayage / Savoir-Faire), pas d'image de fond.
   2. Histoire & Philosophie : 2 colonnes (texte + placeholder visuel), dialogue Paris ↔ Bénin en 3 colonnes.
-  3. 4 Piliers du Savoir-Faire : grille `md:grid-cols-2 lg:grid-cols-4`, fond `stone-900`.
+  3. 4 Piliers du Savoir-Faire : grille `md:grid-cols-2 lg:grid-cols-4`, fond `bg-[#2D2825]`.
   4. Matières d'Exception : grille `md:grid-cols-2 lg:grid-cols-3`, cartes blanches `bg-white/60`.
   5. Deux Lieux & CTA : grille `lg:grid-cols-2`, cartes avec infos pratiques + CTA final.
 - **Icônes** : toutes dimensionnées (`w-4 h-4` ou `w-5 h-5`), `aria-hidden="true"` systématique.
 - **Typographie** : Serif pour titres, Sans pour corps, `tracking-[0.3em]` pour eyebrows.
+
+## Architecture — Panier (Cart) & Liste de souhaits (Wishlist)
+
+### Store panier (`src/components/cart/CartProvider.tsx`)
+- **Client Context** (`'use client'`) monté une seule fois dans `src/app/layout.tsx` (au-dessus de `Header` et `Footer`).
+- **État** : `lines: CartLine[]` (id, handle, title, variantTitle, price en centimes, currencyCode, imageUrl, quantity), `isDrawerOpen: boolean`.
+- **Persistance** : `localStorage` (`oxb-cart-v1`) avec hydratation différée (`useEffect` après montage) et écriture tolérante (ne plante pas en mode privé/quota).
+- **API exposée via `useCart()`** :
+  - `lines`, `count` (somme quantités), `subtotal` (somme `price * quantity`), `currencyCode`.
+  - `openDrawer()`, `closeDrawer()`, `toggleDrawer()`.
+  - `addItem(line)` : ajoute ou incrémente si même `id` (variante), ouvre le tiroir.
+  - `increment(id)`, `decrement(id)` (supprime si qté ≤ 0), `remove(id)`, `clear()`.
+  - `isInCart(variantId)` → booléen.
+  - `createCheckout()` : crée un panier Shopify Storefront API (`cartCreate` avec les `merchandiseId` des variantes) et retourne `{ success, checkoutUrl?, error?, demoMode? }`.
+- **Tiroir (`CartDrawer.tsx`)** : slide-over droit (`fixed right-0`), fond `#F9F8F6`, liste avec image, variante, quantité `+/-`, suppression, sous-total, CTA « Passer commande » → appelle `createCheckout()` :
+  - État de chargement (spinner), redirection `window.location.href = checkoutUrl` si succès.
+  - Gestion d'erreur lisible : mode démo / boutique protégée / variante sans ID Storefront → message explicite sans faire planter l'interface.
+  - Fermeture par overlay, bouton X, touche Échap.
+
+### Store liste de souhaits (`src/components/wishlist/WishlistProvider.tsx`)
+- **Client Context** identique (même cycle de vie), clé `oxb-wishlist-v1`.
+- **État** : `items: WishlistItem[]` (handle, title, price formaté, imageUrl, imageAlt, link).
+- **API via `useWishlist()`** : `items`, `count`, `openDrawer()`, `closeDrawer()`, `toggleDrawer()`, `add(item)`, `remove(handle)`, `toggle(item)`, `has(handle)`, `clear()`.
+- **Tiroir (`WishlistDrawer.tsx`)** : même grammaire visuelle, liste avec cœur de suppression, lien vers fiche produit, lien « Voir la liste complète » → `/wishlist`.
+
+### Intégration UI
+- **Header** : menu principal **épuré** — uniquement `Collections`, `L'Atelier`, `Rendez-vous` (les liens texte « Mes souhaits » et « Mon compte » ont été retirés du menu desktop **et** mobile).
+  - **Icônes à droite** : Devise, Recherche, **Compte** (lien `<Link href="/compte">` avec `User`), **Liste de souhaits** (bouton `openWishlist()` + `Heart`), **Panier** (bouton `openCart()` + `ShoppingBag`).
+  - **Badges chiffrés** (panier & wishlist) : positionnés `-top-1.5 -right-1.5`, taille `h-4 w-4` (`min-w-[1.25rem]`), texte `text-[9px]`, fond `bg-amber-500` — **ne recouvrent plus l'icône**.
+- **ProductInfo** : bouton « AJOUTER AU PANIER » → `addItem()` (variante sélectionnée) + cœur favoris (toggle). Cœur rempli si déjà en liste.
+- **CollectionProductCard** : cœur discret en haut à droite (z-20 au-dessus du lien z-10), toggle wishlist.
+- **Règle icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5`), `aria-hidden="true"`.
+
+### Placement `/sur-mesure`
+- **Présent uniquement dans le Footer** (`maisonLinks`), **jamais dans `Header.tsx`** (menu principal reste épuré : Collections, L'Atelier, Rendez-vous uniquement).
+- Footer : `L'Atelier` → `Sur-Mesure` → `Rendez-vous & Salons Privés` → ancres L'Atelier.
+
+## API Routes — Réservations & Devis
+
+### `POST /api/appointments` — Réservation rendez-vous
+- **Input** : `{ lieuId: 'PAR'|'BEN', prestationId, date: 'YYYY-MM-DD', creneau: 'HHhMM', nom, email, telephone, accompagnants: 0-4 }`
+  - **Créneaux autorisés** (format `HHhMM`, partagés via `src/lib/constants/appointments.ts`) :
+    `10h30`, `11h45`, `14h00`, `15h30`, `17h00`, `18h15`.
+  - L'API accepte aussi `HH:MM` et normalise en `HH:MM` pour le stockage.
+- **Validation serveur** : préavis ≥ 48h, créneaux dans la liste `APPOINTMENT_SLOTS`, email valide, téléphone, nom ≥ 2.
+- **Output** : `{ success: true, dossier: 'OXB-PAR-XXXX', recap: {...} }` ou `{ success: false, errors: string[] }` (422).
+- **Fallback** : sans SMTP/CRM → journalisation `console.log` + succès simulé (remplacer par envoi réel).
+- **Intégration** : `src/app/rendez-vous/page.tsx` → `fetch('/api/appointments')` (étape 3), état `isSubmitting`, gestion erreurs, affichage `dossier` retourné.
+- **Constantes partagées** : `src/lib/constants/appointments.ts` (`APPOINTMENT_SLOTS`, `PRESTATION_IDS`, `LIEU_IDS`, helpers `isValidSlot`, `normalizeSlot`).
+
+### `POST /api/quotes` — Demande de devis / Sur-Mesure
+- **Input** : `{ type: 'produit'|'sur-mesure', titre, variante?, produitHandle?, nom, email, telephone, message, lieuSouhaite?: 'PAR'|'BEN', referrer? }`
+- **Validation** : champs requis selon type, email, téléphone, message ≥ 10 caractères.
+- **Output** : `{ success: true, reference: 'OXB-Q-XXXX', recap: {...} }` ou erreurs 422.
+- **Fallback** : journalisation locale + succès simulé.
+- **Intégrations** :
+  - `ProductInfo.tsx` : clic « SUR DEVIS » → `fetch('/api/quotes', { type: 'produit', ... })` + toast « Demande envoyée ».
+  - `src/app/sur-mesure/page.tsx` : modale projet → `fetch('/api/quotes', { type: 'sur-mesure', ... })` + écran de succès.
+
+### Conventions API
+- **Toutes** sous `src/app/api/*/route.ts` (App Router, Next.js 16).
+- **Validation** stricte côté serveur (zod-like manuel) + réponses structurées.
+- **Erreurs** : 400 (JSON invalide), 422 (validation), 500 (serveur — non exposé).
+- **Pas de secret** en dur ; futures clés SMTP/CRM via `process.env`.
+
+### `POST /api/checkout` — Création panier Storefront & Checkout URL
+- **Endpoint** : `src/app/api/checkout/route.ts`
+- **Input** : `{ lines: Array<{ merchandiseId: string, quantity: number }> }`
+  - `merchandiseId` = ID de variante Shopify (ex: `gid://shopify/ProductVariant/123`)
+  - `quantity` ≥ 1
+- **Process** : appelle `createCartAndGetCheckoutUrl()` (mutation GraphQL `cartCreate`) via `src/lib/shopify/queries.ts`.
+- **Output succès (200)** : `{ success: true, checkoutUrl: string }`
+- **Output échec / mode démo (200)** : `{ success: false, errors: string[], demoMode: true }`
+  - Ne retourne **pas** d'erreur HTTP 5xx pour ne pas casser l'UI côté client.
+  - `demoMode: true` = boutique protégée par mot de passe, variante sans ID Storefront valide, ou environnement de développement sans token.
+- **Fallback** : message explicite affiché dans `CartDrawer` (contexte portfolio).
+- **Intégration** : `CartDrawer.tsx` → `useCart().createCheckout()` → état `isCheckingOut`, spinner, redirection `window.location.href` ou affichage erreur.
+
+### API Compte Client (`/api/account/*`) — Création, Connexion, Mise à jour, Suppression
+- Toutes sous `src/app/api/account/{register,login,logout,update,delete}/route.ts`.
+- Utilisent les helpers de `src/lib/shopify/queries.ts` :
+  - `createCustomer()` — mutation `customerCreate`.
+  - `createCustomerAccessToken()` — mutation `customerAccessTokenCreate`.
+  - `getCustomer()` — query `customer`.
+  - `updateCustomer()` — mutation `customerUpdate`.
+  - `deleteCustomerAccessToken()` — mutation `customerAccessTokenDelete`.
+  - `deleteCustomer()` — mutation `customerDelete` (souvent non supportée en Storefront API standard).
+- **Validation** : email regex, mot de passe ≥ 6, prénom/nom ≥ 2.
+- **Réponses** : `{ success, mode: 'shopify'|'local', accessToken?, customer?, errors? }`.
+  - **Toujours 200** pour ne pas casser l'UI ; `success: false` + `mode: 'local'` en cas d'échec Shopify (repli portfolio).
+  - `update` retourne `success: true` même si Shopify échoue (le profil local est conservé).
+  - `delete` retourne `success: false` + message si Shopify refuse (le provider bascule sur suppression locale).
+- **Intégration** : `AccountProvider` appelle ces routes, gère le repli local, et persiste session/profil dans `localStorage`.
+
+## Architecture — Page « Liste de souhaits » (`src/app/wishlist/page.tsx`)
+- **Client Component** (`'use client'`) : hydratation sécurisée après montage (`useEffect` → `setHydrated`).
+- **Palette** : fond `bg-[#F9F8F6]` (champagne), sections alternatives `bg-[#F2ECE4]` / `bg-[#FAF7F3]`, cartes `bg-white/90`, accents `#9A7B5B` / `#C8B094`.
+- **Contenu** :
+  - Hero : titre Serif, compteur dynamique.
+  - Grille 3 colonnes (lg) / 2 (sm) / 1 (mobile) : cartes pièces avec image, titre, prix, actions (Retirer, Ajouter au panier, Voir la pièce).
+  - État vide : illustration, CTA vers `/collections`.
+  - CTA bas de page : « Continuer la découverte » → `/collections` + « Prolongez l'expérience » → `/rendez-vous`.
+- **Intégration** : `WishlistProvider` (`oxb-wishlist-v1`), `CartProvider` pour « Ajouter au panier ».
+- **Icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5`), `aria-hidden="true"`.
+- **Liens** : `/collections`, `/rendez-vous`, `/compte` (cohérents avec la règle anti-404).
+
+## Architecture — Page « Espace Compte » (`src/app/compte/page.tsx`)
+- **Client Component** (`'use client'`) : parcours complet (connexion / création / profil / suppression), hydratation post-montage.
+- **Provider** : `AccountProvider` (`src/components/account/AccountProvider.tsx`) monté dans `layout.tsx`.
+- **Session** : `oxb-account-auth-v1` (token Shopify si dispo, sinon token local + mode `shopify` | `local`).
+- **Profil** : `oxb-account-v1` — prénom, nom, courriel, téléphone, ville, pays, lieu souhaité (PAR/BEN), prestation souhaitée, notes, `updatedAt`.
+- **États UI** :
+  - **Non connecté** : onglets « Se connecter » / « Créer un compte », formulaires avec états de chargement (`Loader2`) et messages (succès/erreur).
+  - **Connecté** : en-tête profil + mode (`Compte connecté à la boutique` | `Mode portfolio (données locales)`), consultation (grille `dl`/`dd`) ↔ édition (formulaire complet), déconnexion.
+  - **Suppression du compte** : confirmation en deux étapes, feedback d'erreur si Shopify refuse (repli local).
+- **Intégration Shopify** : `POST /api/account/register|login|logout|update|delete` (mutations Storefront API `customerCreate` / `customerAccessTokenCreate` / `customerUpdate` / `customerAccessTokenDelete` / `customerDelete`).
+  - Repli local automatique : si la boutique est en mode démo / protégée / scope client absent → `mode: 'local'`, l'UI reste fonctionnelle.
+  - Identifiants de démonstration persistés dans `oxb-account-demo-v1`.
+- **Liens rapides** : cartes vers `/wishlist` (avec compteur) et `/rendez-vous`.
+- **Palette** : fond `bg-[#F9F8F6]`, sections alternatives `bg-[#F2ECE4]` / `bg-[#FAF7F3]`, cartes `bg-white/90`, accents `#9A7B5B` / `#C8B094`.
+- **Icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5`), `aria-hidden="true"`.
+- **Liens** : `/wishlist`, `/rendez-vous`, `/collections`, `/sur-mesure`, `/latelier` (cohérents avec la règle anti-404).
+
+## Règle critique — Cohérence des routes & anti-404 (NAVIGATION)

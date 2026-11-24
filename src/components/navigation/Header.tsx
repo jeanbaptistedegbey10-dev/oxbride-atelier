@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingBag, Menu, X, ChevronDown, User } from 'lucide-react';
+import { Search, ShoppingBag, Menu, X, ChevronDown, User, Heart } from 'lucide-react';
 import Link from 'next/link';
 import { Cinzel } from 'next/font/google';
+import { useCart } from '@/components/cart/CartProvider';
+import { useWishlist } from '@/components/wishlist/WishlistProvider';
 
 const cinzel = Cinzel({
   variable: '--font-cinzel',
@@ -70,7 +72,9 @@ export default function Header() {
   const [isCollectionsOpen, setIsCollectionsOpen] = useState(false);
   const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState('EUR');
-  const [cartCount, setCartCount] = useState(0);
+
+  const { count: cartCount, openDrawer: openCart } = useCart();
+  const { count: wishlistCount, openDrawer: openWishlist } = useWishlist();
 
   const collectionsContainerRef = useRef<HTMLDivElement>(null);
 
@@ -232,7 +236,8 @@ export default function Header() {
             </button>
 
             {/* Compte client */}
-            <button
+            <Link
+              href="/compte"
               className="
                 p-2 rounded-full bg-white/5 border border-white/10
                 text-champagne-perle/70 hover:bg-white/10 hover:text-amber-200/80
@@ -241,10 +246,32 @@ export default function Header() {
               aria-label="Mon compte"
             >
               <User className="h-4 w-4" />
+            </Link>
+
+            {/* Liste de souhaits */}
+            <button
+              onClick={openWishlist}
+              className="
+                relative p-2 rounded-full bg-white/5 border border-white/10
+                text-champagne-perle/70 hover:bg-white/10 hover:text-amber-200/80
+                transition-all duration-200
+              "
+              aria-label="Liste de souhaits"
+            >
+              <Heart className="h-4 w-4" />
+              {wishlistCount > 0 && (
+                <span className="
+                  absolute -top-1.5 -right-1.5 h-4 w-4 min-w-[1.25rem] rounded-full bg-amber-500
+                  text-[9px] font-bold text-black flex items-center justify-center
+                ">
+                  {wishlistCount}
+                </span>
+              )}
             </button>
 
             {/* Cart */}
             <button
+              onClick={openCart}
               className="
                 relative p-2 rounded-full bg-white/5 border border-white/10
                 text-champagne-perle/70 hover:bg-white/10 hover:text-amber-200/80
@@ -255,8 +282,8 @@ export default function Header() {
               <ShoppingBag className="h-4 w-4" />
               {cartCount > 0 && (
                 <span className="
-                  absolute top-1 right-1 h-5 w-5 rounded-full bg-amber-500
-                  text-[10px] font-bold text-black flex items-center justify-center
+                  absolute -top-1.5 -right-1.5 h-4 w-4 min-w-[1.25rem] rounded-full bg-amber-500
+                  text-[9px] font-bold text-black flex items-center justify-center
                 ">
                   {cartCount}
                 </span>

@@ -1,10 +1,12 @@
 /** @file
- * OXBride Atelier — Panneau latéral de filtres de collection (Neo-Luxe).
+ * OXBride Atelier — Panneau latéral de filtres de collection (Neo-Luxe Lumineux).
  * Filtres basés sur les **collections Shopify réelles** (excluant 'lookbook') :
  *   - Catégories principales (ex: Femme / Mariée, Homme / Costumes, Alliances & Joaillerie)
  *   - Sous-catégories (ex: Classique Royale, Édition Contemporaine, Silhouette Sirène & Dentelle)
  *   - Tri (Prix, Nouveautés, Alphabétique)
  * Synchronisés avec l'URL (`?category=...&subcategory=...&sort=...&q=...`).
+ *
+ * Palette : fond sable chaud `bg-[#F2ECE4]`, cartes `bg-white/90`, accents `#9A7B5B`/`#C8B094`.
  */
 
 'use client';
@@ -116,10 +118,10 @@ export default function CollectionFilters({
 
   return (
     <aside
-      className="lg:sticky lg:top-24 bg-[#F9F8F6]"
+      className="lg:sticky lg:top-24 bg-[#F2ECE4]"
       aria-label="Filtres de collection"
     >
-      <div className="border border-stone-200/80 rounded-2xl bg-white/40 backdrop-blur-sm">
+      <div className="border border-stone-200/80 rounded-2xl bg-white/90 backdrop-blur-sm">
         {/* En-tête */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-stone-200/60">
           <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500 font-sans">
@@ -129,7 +131,7 @@ export default function CollectionFilters({
             <button
               type="button"
               onClick={clearAll}
-              className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-stone-500 hover:text-stone-900 transition-colors font-sans"
+              className="inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-[#9A7B5B] hover:text-[#7a6345] transition-colors font-sans"
             >
               <RotateCcw className="h-3 w-3" />
               Effacer
@@ -154,8 +156,8 @@ export default function CollectionFilters({
                       <span
                         className={`flex h-4 w-4 shrink-0 items-center justify-center border transition-colors ${
                           isCategorySelected(group.key)
-                            ? 'border-stone-900 bg-stone-900 text-white'
-                            : 'border-stone-300/80 bg-transparent group-hover:border-stone-500'
+                            ? 'border-[#9A7B5B] bg-[#9A7B5B] text-white'
+                            : 'border-stone-300/80 bg-transparent group-hover:border-[#C8B094]'
                         }`}
                       >
                         {isCategorySelected(group.key) && <Check className="h-3 w-3" />}
@@ -184,10 +186,10 @@ export default function CollectionFilters({
                             type="checkbox"
                             checked={isSubcategorySelected(child.value)}
                             onChange={() => toggleSubcategory(child.value)}
-                            className="h-4 w-4 accent-stone-900 border-stone-300/80 rounded focus:ring-2 focus:ring-stone-900"
+                            className="h-4 w-4 accent-[#9A7B5B] border-stone-300/80 rounded focus:ring-2 focus:ring-[#9A7B5B]"
                           />
                           <span className={`text-sm leading-snug ${
-                            isSubcategorySelected(child.value) ? 'text-stone-900 font-medium' : 'text-stone-600'
+                            isSubcategorySelected(child.value) ? 'text-[#9A7B5B] font-medium' : 'text-stone-600'
                           }`}>
                             {child.label}
                           </span>
@@ -209,10 +211,10 @@ export default function CollectionFilters({
                       type="checkbox"
                       checked={isCategorySelected(group.key)}
                       onChange={() => toggleCategory(group.key)}
-                      className="h-4 w-4 accent-stone-900 border-stone-300/80 rounded focus:ring-2 focus:ring-stone-900"
+                      className="h-4 w-4 accent-[#9A7B5B] border-stone-300/80 rounded focus:ring-2 focus:ring-[#9A7B5B]"
                     />
                     <span className={`text-sm leading-snug ${
-                      isCategorySelected(group.key) ? 'text-stone-900 font-medium' : 'text-stone-600'
+                      isCategorySelected(group.key) ? 'text-[#9A7B5B] font-medium' : 'text-stone-600'
                     }`}>
                       {group.label}
                     </span>
@@ -253,17 +255,17 @@ export default function CollectionFilters({
                     <span
                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
                         active
-                          ? 'border-stone-900'
-                          : 'border-stone-300/80 group-hover:border-stone-500'
+                          ? 'border-[#9A7B5B]'
+                          : 'border-stone-300/80 group-hover:border-[#C8B094]'
                       }`}
                     >
                       {active && (
-                        <span className="h-2 w-2 rounded-full bg-stone-900" />
+                        <span className="h-2 w-2 rounded-full bg-[#9A7B5B]" />
                       )}
                     </span>
                     <span
                       className={`leading-snug ${
-                        active ? 'text-stone-900 font-medium' : ''
+                        active ? 'text-[#9A7B5B] font-medium' : ''
                       }`}
                     >
                       {option.label}
