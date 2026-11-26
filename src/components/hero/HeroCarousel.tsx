@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Link from 'next/link';
 import { Anton } from 'next/font/google';
 
 const anton = Anton({ subsets: ['latin'], weight: '400' });
@@ -13,8 +14,6 @@ import {
   ArrowLeft,
   ArrowRight,
   X,
-  Play,
-  Pause,
   Sparkles,
   Calendar,
   Compass,
@@ -311,7 +310,6 @@ export default function HeroCarousel() {
     }
     return false;
   });
-  const [isAutoplayActive, setIsAutoplayActive] = useState<boolean>(true);
   const [selectedSlideModal, setSelectedSlideModal] = useState<SlideData | null>(null);
   const [appointmentBooked, setAppointmentBooked] = useState<boolean>(false);
 
@@ -364,7 +362,7 @@ export default function HeroCarousel() {
   );
 
   useEffect(() => {
-    if (!isAutoplayActive || selectedSlideModal !== null) {
+    if (selectedSlideModal !== null) {
       if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
       return;
     }
@@ -374,7 +372,7 @@ export default function HeroCarousel() {
     return () => {
       if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
     };
-  }, [isAutoplayActive, selectedSlideModal, navigate]);
+  }, [selectedSlideModal, navigate]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -386,9 +384,6 @@ export default function HeroCarousel() {
         navigate('next');
       } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         navigate('prev');
-      } else if (e.key === ' ') {
-        e.preventDefault();
-        setIsAutoplayActive((prev) => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -463,67 +458,41 @@ export default function HeroCarousel() {
           {currentItem.ghostText}
         </div>
 
+        {/* Top-left Logo - Always visible in Hero */}
         <header
-          className="absolute top-5 sm:top-7 left-4 sm:left-10 flex items-center gap-3 sm:gap-4"
-          style={{
-            zIndex: 60,
-          }}
+          className="absolute top-4 sm:top-5 left-6 md:left-12 flex items-center gap-2 sm:gap-3 shrink-0 z-60"
         >
-          <div className="flex flex-col">
-            <span
-              className="text-sm sm:text-base font-cinzel font-semibold tracking-[0.25em] text-white uppercase"
-              style={{
-                textShadow: '0 2px 10px rgba(0,0,0,0.3)',
-              }}
-            >
-              OXBRIDE ATELIER
-            </span>
-            <span className="text-[10px] tracking-[0.22em] text-white/70 uppercase">
-              PARIS · HAUTE COUTURE NUPTIALE
-            </span>
-          </div>
-
-          <div className="hidden md:flex items-center gap-2 pl-4 border-l border-white/20">
-            <span className="text-[11px] font-mono tracking-widest text-white/90">
-              {String(activeIndex + 1).padStart(2, '0')} / {String(totalSlides).padStart(2, '0')}
-            </span>
-            <span className="text-[11px] text-white/60 font-medium">
-              ·
-            </span>
-            <span className="text-[11px] tracking-wide text-white/80">
-              {currentItem.category}
-            </span>
-          </div>
+          <Link
+            href="/"
+            className="flex items-center gap-2"
+            aria-label="Accueil OXBride Atelier"
+          >
+            <div className="flex flex-col">
+              <span
+                className="text-sm sm:text-base font-cinzel font-semibold tracking-[0.25em] text-white uppercase"
+                style={{
+                  textShadow: '0 2px 10px rgba(0,0,0,0.3)',
+                }}
+              >
+                OXBRIDE ATELIER
+              </span>
+              <span className="text-[10px] tracking-[0.22em] text-white/70 uppercase hidden sm:block">
+                PARIS · HAUTE COUTURE NUPTIALE
+              </span>
+            </div>
+          </Link>
         </header>
 
+        {/* FICHE COLLECTION - Aligned with Header (top-4) */}
         <div
-          className="absolute top-5 sm:top-7 right-4 sm:right-10 flex items-center gap-2 sm:gap-3"
+          className="absolute top-4 sm:top-5 right-4 sm:right-6 flex items-center gap-2 sm:gap-3 shrink-0"
           style={{ zIndex: 60 }}
         >
           <button
             type="button"
-            onClick={() => setIsAutoplayActive((prev) => !prev)}
-            aria-label={isAutoplayActive ? 'Pause autoplay' : 'Start autoplay'}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-full border border-white/30 bg-black/20 backdrop-blur-md text-white text-[11px] uppercase tracking-wider hover:bg-white/15 transition-all duration-150 focus:outline-none"
-          >
-            {isAutoplayActive ? (
-              <>
-                <Pause size={12} className="text-white" />
-                <span className="hidden sm:inline">Autoplay</span>
-              </>
-            ) : (
-              <>
-                <Play size={12} className="text-white fill-white" />
-                <span className="hidden sm:inline">Reprendre</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
             onClick={() => setSelectedSlideModal(currentItem)}
             aria-label="Voir la fiche détaillée"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-md text-white text-[11px] uppercase tracking-wider hover:bg-white/25 transition-all duration-150"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 shrink-0 whitespace-nowrap rounded-full border border-white/30 bg-white/10 backdrop-blur-md text-white text-[11px] uppercase tracking-wider hover:bg-white/25 transition-all duration-150"
           >
             <Compass size={13} />
             <span>Fiche Collection</span>

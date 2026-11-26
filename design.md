@@ -152,10 +152,21 @@
 ## Header (`src/components/navigation/Header.tsx`) — Menu épuré & badges
 - **Menu principal** (desktop + mobile) : uniquement `Collections`, `L'Atelier`, `Rendez-vous`.
   - Les liens texte « Mes souhaits » et « Mon compte » ont été **retirés** du menu.
-- **Icônes à droite** : Devise, Recherche, **Compte** (`<Link href="/compte">` + `User`), **Liste de souhaits** (bouton `openWishlist()` + `Heart`), **Panier** (bouton `openCart()` + `ShoppingBag`).
-- **Badges chiffrés** (panier & wishlist) : `absolute -top-1.5 -right-1.5`, `h-4 w-4 min-w-[1.25rem]`, `text-[9px]`, fond `bg-amber-500` — **ne recouvrent plus l'icône**.
+- **Logo/Identité dans la barre (scroll only)** : `OXBRIDE ATELIER` + `PARIS · HAUTE COUTURE NUPTIALE` (lien vers `/`, police Cinzel, `tracking-[0.25em]`, `text-[#2D2825]`) — **apparaît uniquement au scroll > 0** (Framer Motion `opacity` + `x`), **disparaît en haut de page** (Hero visible).
+- **Navigation centrée** : liens positionnés en `absolute left-1/2 -translate-x-1/2` pour un centrage parfait, `whitespace-nowrap` + `gap-5 lg:gap-6 xl:gap-8` — **jamais de chevauchement** avec les icônes droites à 1400 px comme à 1900 px.
+- **Icônes à droite** : Recherche, **Compte** (`<Link href="/compte">` + `User`), **Liste de souhaits** (bouton `openWishlist()` + `Heart`), **Panier** (bouton `openCart()` + `ShoppingBag`) — **sélecteur de devise retiré**.
+- **Espacement responsive ~1400px** : `gap-2 xl:gap-4`, `px-4 xl:px-8`, `shrink-0` sur chaque action — **zéro compression/superposition** à droite.
+- **Badges chiffrés** (panier & wishlist) : `absolute -top-1 -right-1`, `h-4 w-4 min-w-[1.25rem]`, `text-[9px]`, fond `bg-amber-500` — **nets, lisibles, ne masquent pas l'icône**.
+- **Arrière-plan au scroll** : transparent au Hero (`bg-transparent`, hover effects), **plein et opaque au scroll** (`bg-[#F9F8F6] border border-stone-200/80 shadow-lg`), textes/icônes en `text-[#2D2825]` pour contraste.
+- **Scroll behavior** : barre masquée au **scroll vers le bas** (`scrollY > lastScrollY && scrollY > 100`), réapparue instantanément au **scroll vers le haut** — `isHeaderVisible` state + Framer Motion `y`/`opacity` animation.
 - **Icônes** : toutes dimensionnées (`w-4 h-4` / `h-5 w-5` pour la croix mobile).
 - **Liens** : `/wishlist`, `/rendez-vous`, `/collections`, `/sur-mesure`, `/latelier`.
+
+## Hero (`src/components/hero/HeroCarousel.tsx`) — Logo & contrôles alignés
+- **Logo top-gauche** : `OXBRIDE ATELIER` + `PARIS · HAUTE COUTURE NUPTIALE` **toujours visible** en `top-4 sm:top-5 left-6 md:left-12` (police Cinzel, blanc, `text-shadow`) — **aligné horizontalement avec le bloc de texte/contrôles du bas** (`md:left-12`).
+- **FICHE COLLECTION aligné** : bouton unique à droite sur **la même ligne que le Header** (`top-4 sm:top-5 right-4 sm:right-6`), `shrink-0` + `whitespace-nowrap` — alignement parfait à 1400 px et 1900 px.
+- **Autoplay permanent** : intervalle 4,8 s, **aucun bouton `AUTOPLAY` / `Pause`** dans l'UI.
+- **Contrôles restants** : flèches nav, pagination points, CTA `DÉCOUVRIR LA COLLECTION`.
 
 ## Placement `/sur-mesure`
 - **Présent uniquement dans le Footer** (`maisonLinks`), **jamais dans `Header.tsx`** (menu principal épuré : Collections, L'Atelier, Rendez-vous).

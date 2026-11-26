@@ -156,8 +156,14 @@
 
 ### Intégration UI
 - **Header** : menu principal **épuré** — uniquement `Collections`, `L'Atelier`, `Rendez-vous` (les liens texte « Mes souhaits » et « Mon compte » ont été retirés du menu desktop **et** mobile).
-  - **Icônes à droite** : Devise, Recherche, **Compte** (lien `<Link href="/compte">` avec `User`), **Liste de souhaits** (bouton `openWishlist()` + `Heart`), **Panier** (bouton `openCart()` + `ShoppingBag`).
-  - **Badges chiffrés** (panier & wishlist) : positionnés `-top-1.5 -right-1.5`, taille `h-4 w-4` (`min-w-[1.25rem]`), texte `text-[9px]`, fond `bg-amber-500` — **ne recouvrent plus l'icône**.
+  - **Logo/Identité dans la barre (scroll only, pas au Hero)** : `OXBRIDE ATELIER` + `PARIS · HAUTE COUTURE NUPTIALE` (lien vers `/`, police Cinzel, `tracking-[0.25em]`, `text-[#2D2825]`) — **apparaît uniquement au scroll > 0** (Framer Motion `opacity` + `x`), **disparaît en haut de page** (Hero visible, pas de doublon avec le logo Hero).
+  - **Navigation centrée** : liens positionnés en `absolute left-1/2 -translate-x-1/2` pour un centrage parfait, `whitespace-nowrap` + `gap-5 lg:gap-6 xl:gap-8` — **jamais de chevauchement** avec les icônes droites à 1400 px comme à 1900 px.
+  - **Icônes à droite** : Recherche, **Compte** (lien `<Link href="/compte">` avec `User`), **Liste de souhaits** (bouton `openWishlist()` + `Heart`), **Panier** (bouton `openCart()` + `ShoppingBag`) — **sélecteur de devise retiré**.
+  - **Espacement responsive ~1400px** : `gap-2 xl:gap-4`, `px-4 xl:px-8`, `shrink-0` sur chaque action — **zéro compression/superposition** à droite, espace suffisant pour `FICHE COLLECTION` du Hero.
+  - **Badges chiffrés** (panier & wishlist) : positionnés `-top-1 -right-1`, taille `h-4 w-4` (`min-w-[1.25rem]`), texte `text-[9px]`, fond `bg-amber-500` — **nets, lisibles, ne masquent pas l'icône**.
+  - **Arrière-plan au scroll** : transparent au Hero (`bg-transparent`, hover effects), **plein et opaque au scroll** (`bg-[#F9F8F6] border border-stone-200/80 shadow-lg`), textes/icônes en `text-[#2D2825]` pour contraste.
+  - **Scroll behavior** : barre masquée au **scroll vers le bas** (`scrollY > lastScrollY && scrollY > 100`), réapparue instantanément au **scroll vers le haut** — `isHeaderVisible` state + Framer Motion `y`/`opacity` animation.
+- **Hero** : logo **toujours visible** en haut à gauche aligné avec le bloc du bas (`top-4 sm:top-5 left-6 md:left-12`) ; `FICHE COLLECTION` aligné verticalement sur la même ligne que le Header (`top-4 sm:top-5` droite) avec `shrink-0` + `whitespace-nowrap` ; lecture automatique **toujours active** (pas de bouton `AUTOPLAY`), intervalle 4,8 s ; contrôles restants = flèches, pagination, CTA `DÉCOUVRIR LA COLLECTION`.
 - **ProductInfo** : bouton « AJOUTER AU PANIER » → `addItem()` (variante sélectionnée) + cœur favoris (toggle). Cœur rempli si déjà en liste.
 - **CollectionProductCard** : cœur discret en haut à droite (z-20 au-dessus du lien z-10), toggle wishlist.
 - **Règle icônes** : toutes dimensionnées (`w-4 h-4` / `w-5 h-5`), `aria-hidden="true"`.
